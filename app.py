@@ -97,7 +97,7 @@ def level(score, axis):
 x_label = level(x_score, "x")
 y_label = level(y_score, "y")
 
-cut = 5.5
+cut = 5.0
 if x_score < cut and y_score < cut:
     quadrant = "Building the Base"
 elif x_score >= cut and y_score < cut:
@@ -201,7 +201,7 @@ stage_fills = [
 
 x = np.linspace(0, 10, 800)
 # Broad lifecycle curve with the peak in Established and a clear decline into Fixing.
-curve = 0.75 + 6.9 * np.exp(-((x - 5.25) ** 2) / 8.6)
+curve = 0.75 + 6.9 * np.exp(-((x - 5.0) ** 2) / 8.6)
 curve = np.clip(curve, 0.75, 8.1)
 
 # Stage fills under the lifecycle curve.
@@ -223,7 +223,7 @@ fig.add_trace(go.Scatter(
 
 # Visible stage separators: thin vertical lines from the baseline up to the curve.
 for xsep in stage_bounds[1:-1]:
-    ysep = float(0.75 + 6.9 * np.exp(-((xsep - 5.25) ** 2) / 8.6))
+    ysep = float(0.75 + 6.9 * np.exp(-((xsep - 5.0) ** 2) / 8.6))
     fig.add_shape(
         type="line", x0=xsep, x1=xsep, y0=0, y1=ysep,
         line=dict(color="rgba(100,116,139,0.30)", width=0.8, dash="dot")
@@ -276,32 +276,32 @@ fig.add_annotation(
     font=dict(size=10.5, color="#111827")
 )
 
-# Quadrant labels INSIDE the four quadrants, anchored to the requested corners.
+# Quadrant labels INSIDE the four quadrants, deliberately near the TOP of each quadrant.
 qfont = dict(size=11.5, color="#64748B")
-# top-left corner of the upper-left quadrant
+# Upper-left: near the top-left edge of the upper-left quadrant.
 fig.add_annotation(
-    x=0.75, y=9.25,
+    x=0.65, y=9.65,
     text="Ready for more customers",
     showarrow=False, font=qfont,
     xanchor="left", yanchor="top", align="left"
 )
-# top-left corner of the lower-left quadrant
+# Lower-left: near the top-left edge of the lower-left quadrant, just below the divider.
 fig.add_annotation(
-    x=0.75, y=cut - 0.35,
+    x=0.65, y=cut - 0.18,
     text="Building the base",
     showarrow=False, font=qfont,
     xanchor="left", yanchor="top", align="left"
 )
-# top-right corner of the upper-right quadrant
+# Upper-right: near the top-right edge of the upper-right quadrant.
 fig.add_annotation(
-    x=9.25, y=9.25,
+    x=9.35, y=9.65,
     text="In balance",
     showarrow=False, font=qfont,
     xanchor="right", yanchor="top", align="right"
 )
-# top-right corner of the lower-right quadrant
+# Lower-right: near the top-right edge of the lower-right quadrant, just below the divider.
 fig.add_annotation(
-    x=9.25, y=cut - 0.35,
+    x=9.35, y=cut - 0.18,
     text="Growing pains",
     showarrow=False, font=qfont,
     xanchor="right", yanchor="top", align="right"
@@ -309,7 +309,7 @@ fig.add_annotation(
 
 # Stage labels INSIDE the bell-curve areas, all aligned on the same baseline.
 stage_centers = [(stage_bounds[i] + stage_bounds[i+1]) / 2 for i in range(4)]
-stage_baseline_y = 0.78
+stage_baseline_y = 0.72
 for name, xpos in zip(stage_names, stage_centers):
     fig.add_annotation(
         x=xpos, y=stage_baseline_y,
@@ -320,7 +320,7 @@ for name, xpos in zip(stage_names, stage_centers):
 
 # Cleaner axis titles with centered explanation lines.
 fig.add_annotation(
-    x=0.5, y=-0.31, xref="paper", yref="paper",
+    x=0.5, y=-0.33, xref="paper", yref="paper",
     text="<b>Market reach</b><br><span style='font-size:10px'>(more ways customers can find and buy from you)</span>",
     showarrow=False, align="center", font=dict(size=11.5, color="#64748B")
 )
@@ -333,7 +333,7 @@ fig.add_annotation(
 
 fig.update_layout(
     height=320,
-    margin=dict(l=110, r=40, t=28, b=130),
+    margin=dict(l=110, r=40, t=28, b=138),
     paper_bgcolor="white",
     plot_bgcolor="#FCFCFB",
     xaxis=dict(range=[0, 10.25], showgrid=False, zeroline=False, showticklabels=False, title="", fixedrange=True),
@@ -377,16 +377,16 @@ with st.expander("Try another result"):
     st.markdown(f"[Open this result]({url})")
 
 # Write a zip copy for the user if running in notebook env
-base_dir = '/mnt/data/business_stage_map_streamlit_v9'
+base_dir = '/mnt/data/business_stage_map_streamlit_v10'
 os.makedirs(base_dir, exist_ok=True)
 for fname in ['app.py', 'requirements.txt', 'README.md']:
     src = os.path.join('/mnt/data/business_stage_map_streamlit', fname)
     if os.path.exists(src):
         with open(src, 'rb') as fsrc, open(os.path.join(base_dir, fname), 'wb') as fdst:
             fdst.write(fsrc.read())
-zip_path = '/mnt/data/business_stage_map_streamlit_v9.zip'
+zip_path = '/mnt/data/business_stage_map_streamlit_v10.zip'
 with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as z:
     for fname in ['app.py', 'requirements.txt', 'README.md']:
         p = os.path.join(base_dir, fname)
         if os.path.exists(p):
-            z.write(p, arcname=f'business_stage_map_streamlit_v9/{fname}')
+            z.write(p, arcname=f'business_stage_map_streamlit_v10/{fname}')
