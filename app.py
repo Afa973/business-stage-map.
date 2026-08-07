@@ -273,7 +273,7 @@ fig.add_trace(go.Scatter(
 fig.add_annotation(
     x=x_score, y=y_score, text="You're here",
     showarrow=False, xshift=0, yshift=22,
-    font=dict(size=10.5, color="#C53030")
+    font=dict(size=11.5, color="#C53030")
 )
 
 # Quadrant labels INSIDE the four quadrants.
