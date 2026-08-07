@@ -256,7 +256,7 @@ fig.add_annotation(
     align="center",
     text="You should be here",
     showarrow=False,
-    font=dict(size=10.5, color="#374151"),
+    font=dict(size=10.5, color="#ffffff"),
     bgcolor="rgba(0,0,0,.55)",
     bordercolor="rgba(75,85,99,0.0)",
     borderpad=3,
