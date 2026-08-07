@@ -300,22 +300,22 @@ for name, xpos in zip(stage_names, stage_centers):
         font=dict(size=11.5, color="#6B7280")
     )
 
-# Cleaner axis titles.
+# Cleaner axis titles with centered explanation lines.
 fig.add_annotation(
-    x=0.5, y=-0.205, xref="paper", yref="paper",
-    text="<b>Market reach</b>  ·  more ways customers can find and buy from you",
-    showarrow=False, font=dict(size=11.5, color="#64748B")
+    x=0.5, y=-0.19, xref="paper", yref="paper",
+    text="<b>Market reach</b><br><span style='font-size:10px'>(more ways customers can find and buy from you)</span>",
+    showarrow=False, align="center", font=dict(size=11.5, color="#64748B")
 )
 fig.add_annotation(
-    x=-0.105, y=0.5, xref="paper", yref="paper",
-    text="<b>Operational maturity</b>  ·  more repeatable systems",
-    showarrow=False, textangle=-90,
+    x=-0.095, y=0.5, xref="paper", yref="paper",
+    text="<b>Operational maturity</b><br><span style='font-size:10px'>(more repeatable systems)</span>",
+    showarrow=False, textangle=-90, align="center",
     font=dict(size=11.5, color="#64748B")
 )
 
 fig.update_layout(
     height=320,
-    margin=dict(l=108, r=105, t=48, b=78),
+    margin=dict(l=108, r=48, t=48, b=88),
     paper_bgcolor="white",
     plot_bgcolor="#FCFCFB",
     xaxis=dict(range=[0, 10.25], showgrid=False, zeroline=False, showticklabels=False, title="", fixedrange=True),
@@ -359,16 +359,16 @@ with st.expander("Try another result"):
     st.markdown(f"[Open this result]({url})")
 
 # Write a zip copy for the user if running in notebook env
-base_dir = '/mnt/data/business_stage_map_streamlit_v3'
+base_dir = '/mnt/data/business_stage_map_streamlit_v5'
 os.makedirs(base_dir, exist_ok=True)
 for fname in ['app.py', 'requirements.txt', 'README.md']:
     src = os.path.join('/mnt/data/business_stage_map_streamlit', fname)
     if os.path.exists(src):
         with open(src, 'rb') as fsrc, open(os.path.join(base_dir, fname), 'wb') as fdst:
             fdst.write(fsrc.read())
-zip_path = '/mnt/data/business_stage_map_streamlit_v3.zip'
+zip_path = '/mnt/data/business_stage_map_streamlit_v5.zip'
 with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as z:
     for fname in ['app.py', 'requirements.txt', 'README.md']:
         p = os.path.join(base_dir, fname)
         if os.path.exists(p):
-            z.write(p, arcname=f'business_stage_map_streamlit_v3/{fname}')
+            z.write(p, arcname=f'business_stage_map_streamlit_v5/{fname}')
