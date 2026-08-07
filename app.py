@@ -262,15 +262,8 @@ fig.add_annotation(
     borderpad=1.5,
 )
 
-# Reader position: pin icon and label grouped visually inside a circle.
-pin_text_y = y_score + 0.66
-fig.add_shape(
-    type="circle",
-    x0=x_score - 0.38, x1=x_score + 0.38,
-    y0=y_score - 0.32, y1=pin_text_y + 0.20,
-    line=dict(color="rgba(197,48,48,0.75)", width=1.0),
-    fillcolor="rgba(255,255,255,0.0)"
-)
+# Reader position: pin icon with the label placed underneath.
+pin_text_y = y_score - 0.62
 fig.add_trace(go.Scatter(
     x=[x_score], y=[y_score], mode="text",
     text=["📍"],
@@ -386,16 +379,16 @@ with st.expander("Try another result"):
     st.markdown(f"[Open this result]({url})")
 
 # Write a zip copy for the user if running in notebook env
-base_dir = '/mnt/data/business_stage_map_streamlit_v24'
+base_dir = '/mnt/data/business_stage_map_streamlit_v25'
 os.makedirs(base_dir, exist_ok=True)
 for fname in ['app.py', 'requirements.txt', 'README.md']:
     src = os.path.join('/mnt/data/business_stage_map_streamlit', fname)
     if os.path.exists(src):
         with open(src, 'rb') as fsrc, open(os.path.join(base_dir, fname), 'wb') as fdst:
             fdst.write(fsrc.read())
-zip_path = '/mnt/data/business_stage_map_streamlit_v24.zip'
+zip_path = '/mnt/data/business_stage_map_streamlit_v25.zip'
 with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as z:
     for fname in ['app.py', 'requirements.txt', 'README.md']:
         p = os.path.join(base_dir, fname)
         if os.path.exists(p):
-            z.write(p, arcname=f'business_stage_map_streamlit_v24/{fname}')
+            z.write(p, arcname=f'business_stage_map_streamlit_v25/{fname}')
