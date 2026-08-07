@@ -245,7 +245,7 @@ fig.add_shape(type="line", x0=0, x1=10, y0=cut, y1=cut,
 # Expected benchmark zone.
 fig.add_shape(
     type="rect", x0=x_range[0], x1=x_range[1], y0=y_range[0], y1=y_range[1],
-    fillcolor="rgba(107,114,128,0.18)",
+    fillcolor="rgba(0,0,0,.35)",
     line=dict(color="rgba(75,85,99,0.72)", width=1.0, dash="dot")
 )
 fig.add_annotation(
