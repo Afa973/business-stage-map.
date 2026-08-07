@@ -200,7 +200,7 @@ stage_fills = [
 
 x = np.linspace(0, 10, 800)
 # Taller lifecycle curve with the peak centered and a clearer rise/fall shape.
-curve = 0.7 + 7.9 * np.exp(-((x - 5.1) ** 2) / 7.0)
+curve = 0.7 + 7.9 * np.exp(-((x - 5.0) ** 2) / 7.0)
 curve = np.clip(curve, 0.7, 8.7)
 
 # Stage fills under the lifecycle curve.
@@ -222,7 +222,7 @@ fig.add_trace(go.Scatter(
 
 # Visible stage separators: thin vertical lines from the baseline up to the curve.
 for xsep in stage_bounds[1:-1]:
-    ysep = float(0.7 + 7.9 * np.exp(-((xsep - 5.1) ** 2) / 7.0))
+    ysep = float(0.7 + 7.9 * np.exp(-((xsep - 5.0) ** 2) / 7.0))
     fig.add_shape(
         type="line", x0=xsep, x1=xsep, y0=0, y1=ysep,
         line=dict(color="rgba(100,116,139,0.30)", width=0.8, dash="dot")
@@ -234,10 +234,6 @@ fig.add_shape(type="line", x0=0, x1=10.15, y0=0, y1=0,
               line=dict(color=base_line, width=1.1))
 fig.add_shape(type="line", x0=0, x1=0, y0=0, y1=10.15,
               line=dict(color=base_line, width=1.1))
-fig.add_annotation(x=10.15, y=0, text="", showarrow=True, ax=-18, ay=0,
-                   arrowhead=2, arrowsize=0.8, arrowwidth=1.1, arrowcolor=base_line)
-fig.add_annotation(x=0, y=10.15, text="", showarrow=True, ax=0, ay=18,
-                   arrowhead=2, arrowsize=0.8, arrowwidth=1.1, arrowcolor=base_line)
 
 # Quadrant dividers: deliberately lighter than the true axes.
 quad_line = "rgba(100,116,139,0.36)"
@@ -268,14 +264,14 @@ fig.add_annotation(
 # Reader position: simple cross, with label offset so it does not sit on top of the mark.
 fig.add_trace(go.Scatter(
     x=[x_score], y=[y_score], mode="markers",
-    marker=dict(symbol="x-thin", size=12, color="#C53030", line=dict(width=1.25, color="#C53030")),
+    marker=dict(symbol="x-thin", size=13, color="#C53030", line=dict(width=1.6, color="#C53030")),
     hovertemplate=f"Market Reach: {x_score:.1f}<br>Operational Maturity: {y_score:.1f}<extra></extra>",
     showlegend=False
 ))
 fig.add_annotation(
     x=x_score, y=y_score, text="You're here",
     showarrow=False, xshift=0, yshift=22,
-    font=dict(size=10.5, color="#111827")
+    font=dict(size=10.5, color="#C53030")
 )
 
 # Quadrant labels INSIDE the four quadrants.
@@ -380,16 +376,16 @@ with st.expander("Try another result"):
     st.markdown(f"[Open this result]({url})")
 
 # Write a zip copy for the user if running in notebook env
-base_dir = '/mnt/data/business_stage_map_streamlit_v18'
+base_dir = '/mnt/data/business_stage_map_streamlit_v19'
 os.makedirs(base_dir, exist_ok=True)
 for fname in ['app.py', 'requirements.txt', 'README.md']:
     src = os.path.join('/mnt/data/business_stage_map_streamlit', fname)
     if os.path.exists(src):
         with open(src, 'rb') as fsrc, open(os.path.join(base_dir, fname), 'wb') as fdst:
             fdst.write(fsrc.read())
-zip_path = '/mnt/data/business_stage_map_streamlit_v18.zip'
+zip_path = '/mnt/data/business_stage_map_streamlit_v19.zip'
 with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as z:
     for fname in ['app.py', 'requirements.txt', 'README.md']:
         p = os.path.join(base_dir, fname)
         if os.path.exists(p):
-            z.write(p, arcname=f'business_stage_map_streamlit_v18/{fname}')
+            z.write(p, arcname=f'business_stage_map_streamlit_v19/{fname}')
