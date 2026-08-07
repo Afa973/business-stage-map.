@@ -272,7 +272,7 @@ fig.add_trace(go.Scatter(
     showlegend=False
 ))
 fig.add_annotation(
-    x=x_score, y=pin_text_y, text="You're here",
+    x=x_score, y=pin_text_y, text="<b>You're here</b>",
     showarrow=False,
     font=dict(size=12, color="#C53030")
 )
