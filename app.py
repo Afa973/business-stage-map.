@@ -192,10 +192,10 @@ fig = go.Figure()
 stage_bounds = [0.0, 2.35, 4.05, 6.15, 10.0]
 stage_names = ["Starting", "Growing", "Established", "Fixing"]
 stage_fills = [
-    "rgba(235, 221, 214, 0.42)",
-    "rgba(219, 233, 218, 0.48)",
-    "rgba(224, 232, 244, 0.50)",
-    "rgba(241, 222, 219, 0.34)",
+    "rgba(236, 214, 203, 0.58)",
+    "rgba(201, 228, 199, 0.62)",
+    "rgba(205, 221, 244, 0.66)",
+    "rgba(239, 212, 205, 0.52)",
 ]
 
 x = np.linspace(0, 10, 800)
@@ -376,16 +376,16 @@ with st.expander("Try another result"):
     st.markdown(f"[Open this result]({url})")
 
 # Write a zip copy for the user if running in notebook env
-base_dir = '/mnt/data/business_stage_map_streamlit_v19'
+base_dir = '/mnt/data/business_stage_map_streamlit_v20'
 os.makedirs(base_dir, exist_ok=True)
 for fname in ['app.py', 'requirements.txt', 'README.md']:
     src = os.path.join('/mnt/data/business_stage_map_streamlit', fname)
     if os.path.exists(src):
         with open(src, 'rb') as fsrc, open(os.path.join(base_dir, fname), 'wb') as fdst:
             fdst.write(fsrc.read())
-zip_path = '/mnt/data/business_stage_map_streamlit_v19.zip'
+zip_path = '/mnt/data/business_stage_map_streamlit_v20.zip'
 with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as z:
     for fname in ['app.py', 'requirements.txt', 'README.md']:
         p = os.path.join(base_dir, fname)
         if os.path.exists(p):
-            z.write(p, arcname=f'business_stage_map_streamlit_v19/{fname}')
+            z.write(p, arcname=f'business_stage_map_streamlit_v20/{fname}')
