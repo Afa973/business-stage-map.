@@ -245,7 +245,7 @@ fig.add_shape(type="line", x0=0, x1=10, y0=cut, y1=cut,
 # Expected benchmark zone.
 fig.add_shape(
     type="rect", x0=x_range[0], x1=x_range[1], y0=y_range[0], y1=y_range[1],
-    fillcolor="rgba(107,114,128,0.40)",
+    fillcolor="rgba(107,114,128,0.34)",
     line=dict(color="rgba(75,85,99,0.72)", width=1.0, dash="dot")
 )
 fig.add_annotation(
@@ -256,13 +256,21 @@ fig.add_annotation(
     align="center",
     text="You should be here",
     showarrow=False,
-    font=dict(size=10.5, color="#ffffff"),
-    bgcolor="rgba(156,163,175,0.94)",
+    font=dict(size=10.5, color="#1F2937"),
+    bgcolor="rgba(229,231,235,0.72)",
     bordercolor="rgba(75,85,99,0.0)",
-    borderpad=3,
+    borderpad=1.5,
 )
 
-# Reader position: pin icon, with label offset so it does not sit on top of the mark.
+# Reader position: pin icon and label grouped visually inside a circle.
+pin_text_y = y_score + 0.66
+fig.add_shape(
+    type="circle",
+    x0=x_score - 0.38, x1=x_score + 0.38,
+    y0=y_score - 0.32, y1=pin_text_y + 0.20,
+    line=dict(color="rgba(197,48,48,0.75)", width=1.0),
+    fillcolor="rgba(255,255,255,0.0)"
+)
 fig.add_trace(go.Scatter(
     x=[x_score], y=[y_score], mode="text",
     text=["📍"],
@@ -271,9 +279,9 @@ fig.add_trace(go.Scatter(
     showlegend=False
 ))
 fig.add_annotation(
-    x=x_score, y=y_score, text="You're here",
-    showarrow=False, xshift=0, yshift=22,
-    font=dict(size=12, color="#C53030")
+    x=x_score, y=pin_text_y, text="You're here",
+    showarrow=False,
+    font=dict(size=10.5, color="#C53030")
 )
 
 # Quadrant labels INSIDE the four quadrants.
@@ -378,16 +386,16 @@ with st.expander("Try another result"):
     st.markdown(f"[Open this result]({url})")
 
 # Write a zip copy for the user if running in notebook env
-base_dir = '/mnt/data/business_stage_map_streamlit_v23'
+base_dir = '/mnt/data/business_stage_map_streamlit_v24'
 os.makedirs(base_dir, exist_ok=True)
 for fname in ['app.py', 'requirements.txt', 'README.md']:
     src = os.path.join('/mnt/data/business_stage_map_streamlit', fname)
     if os.path.exists(src):
         with open(src, 'rb') as fsrc, open(os.path.join(base_dir, fname), 'wb') as fdst:
             fdst.write(fsrc.read())
-zip_path = '/mnt/data/business_stage_map_streamlit_v23.zip'
+zip_path = '/mnt/data/business_stage_map_streamlit_v24.zip'
 with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as z:
     for fname in ['app.py', 'requirements.txt', 'README.md']:
         p = os.path.join(base_dir, fname)
         if os.path.exists(p):
-            z.write(p, arcname=f'business_stage_map_streamlit_v23/{fname}')
+            z.write(p, arcname=f'business_stage_map_streamlit_v24/{fname}')
