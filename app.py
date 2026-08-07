@@ -245,7 +245,7 @@ fig.add_shape(type="line", x0=0, x1=10, y0=cut, y1=cut,
 # Expected benchmark zone.
 fig.add_shape(
     type="rect", x0=x_range[0], x1=x_range[1], y0=y_range[0], y1=y_range[1],
-    fillcolor="rgba(107,114,128,0.30)",
+    fillcolor="rgba(107,114,128,0.40)",
     line=dict(color="rgba(75,85,99,0.72)", width=1.0, dash="dot")
 )
 fig.add_annotation(
@@ -257,7 +257,7 @@ fig.add_annotation(
     text="You should be here",
     showarrow=False,
     font=dict(size=10.5, color="#374151"),
-    bgcolor="rgba(0,0,0,.4)",
+    bgcolor="rgba(156,163,175,0.94)",
     bordercolor="rgba(75,85,99,0.0)",
     borderpad=3,
 )
@@ -273,7 +273,7 @@ fig.add_trace(go.Scatter(
 fig.add_annotation(
     x=x_score, y=y_score, text="You're here",
     showarrow=False, xshift=0, yshift=22,
-    font=dict(size=12, color="#C53030")
+    font=dict(size=10.5, color="#C53030")
 )
 
 # Quadrant labels INSIDE the four quadrants.
@@ -378,16 +378,16 @@ with st.expander("Try another result"):
     st.markdown(f"[Open this result]({url})")
 
 # Write a zip copy for the user if running in notebook env
-base_dir = '/mnt/data/business_stage_map_streamlit_v22'
+base_dir = '/mnt/data/business_stage_map_streamlit_v23'
 os.makedirs(base_dir, exist_ok=True)
 for fname in ['app.py', 'requirements.txt', 'README.md']:
     src = os.path.join('/mnt/data/business_stage_map_streamlit', fname)
     if os.path.exists(src):
         with open(src, 'rb') as fsrc, open(os.path.join(base_dir, fname), 'wb') as fdst:
             fdst.write(fsrc.read())
-zip_path = '/mnt/data/business_stage_map_streamlit_v22.zip'
+zip_path = '/mnt/data/business_stage_map_streamlit_v23.zip'
 with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as z:
     for fname in ['app.py', 'requirements.txt', 'README.md']:
         p = os.path.join(base_dir, fname)
         if os.path.exists(p):
-            z.write(p, arcname=f'business_stage_map_streamlit_v22/{fname}')
+            z.write(p, arcname=f'business_stage_map_streamlit_v23/{fname}')
