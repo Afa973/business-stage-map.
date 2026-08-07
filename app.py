@@ -190,7 +190,7 @@ fig = go.Figure()
 
 # Geometry: four lifecycle sections. Established sits around the peak;
 # Fixing is shown on the decline, matching the reader-facing stage model.
-stage_bounds = [0.0, 2.7, 4.8, 7.6, 10.0]
+stage_bounds = [0.0, 2.7, 4.2, 7.6, 10.0]
 stage_names = ["Starting", "Growing", "Established", "Fixing"]
 stage_fills = [
     "rgba(235, 221, 214, 0.42)",
@@ -276,35 +276,36 @@ fig.add_annotation(
     font=dict(size=10.5, color="#111827")
 )
 
-# Quadrant labels INSIDE the four quadrants, deliberately near the TOP of each quadrant.
+# Quadrant labels INSIDE the quadrants, all left-aligned for a cleaner reading rhythm.
 qfont = dict(size=11.5, color="#64748B")
-# Upper-left: near the top-left edge of the upper-left quadrant.
+left_col_x = 0.72
+right_col_x = cut + 0.72
+upper_y = 9.55
+lower_y = cut - 0.22
+
 fig.add_annotation(
-    x=0.65, y=9.65,
+    x=left_col_x, y=upper_y,
     text="Ready for more customers",
     showarrow=False, font=qfont,
     xanchor="left", yanchor="top", align="left"
 )
-# Lower-left: near the top-left edge of the lower-left quadrant, just below the divider.
 fig.add_annotation(
-    x=0.65, y=cut - 0.18,
+    x=left_col_x, y=lower_y,
     text="Building the base",
     showarrow=False, font=qfont,
     xanchor="left", yanchor="top", align="left"
 )
-# Upper-right: near the top-right edge of the upper-right quadrant.
 fig.add_annotation(
-    x=9.35, y=9.65,
+    x=right_col_x, y=upper_y,
     text="In balance",
     showarrow=False, font=qfont,
-    xanchor="right", yanchor="top", align="right"
+    xanchor="left", yanchor="top", align="left"
 )
-# Lower-right: near the top-right edge of the lower-right quadrant, just below the divider.
 fig.add_annotation(
-    x=9.35, y=cut - 0.18,
+    x=right_col_x, y=lower_y,
     text="Growing pains",
     showarrow=False, font=qfont,
-    xanchor="right", yanchor="top", align="right"
+    xanchor="left", yanchor="top", align="left"
 )
 
 # Stage labels INSIDE the bell-curve areas, all aligned on the same baseline.
@@ -377,16 +378,16 @@ with st.expander("Try another result"):
     st.markdown(f"[Open this result]({url})")
 
 # Write a zip copy for the user if running in notebook env
-base_dir = '/mnt/data/business_stage_map_streamlit_v11'
+base_dir = '/mnt/data/business_stage_map_streamlit_v12'
 os.makedirs(base_dir, exist_ok=True)
 for fname in ['app.py', 'requirements.txt', 'README.md']:
     src = os.path.join('/mnt/data/business_stage_map_streamlit', fname)
     if os.path.exists(src):
         with open(src, 'rb') as fsrc, open(os.path.join(base_dir, fname), 'wb') as fdst:
             fdst.write(fsrc.read())
-zip_path = '/mnt/data/business_stage_map_streamlit_v11.zip'
+zip_path = '/mnt/data/business_stage_map_streamlit_v12.zip'
 with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as z:
     for fname in ['app.py', 'requirements.txt', 'README.md']:
         p = os.path.join(base_dir, fname)
         if os.path.exists(p):
-            z.write(p, arcname=f'business_stage_map_streamlit_v11/{fname}')
+            z.write(p, arcname=f'business_stage_map_streamlit_v12/{fname}')
