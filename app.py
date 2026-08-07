@@ -190,7 +190,7 @@ fig = go.Figure()
 
 # Geometry: four lifecycle sections. Established sits around the peak;
 # Fixing is shown on the decline, matching the reader-facing stage model.
-stage_bounds = [0.0, 2.5, 5.0, 7.5, 10.0]
+stage_bounds = [0.0, 2.7, 4.8, 7.6, 10.0]
 stage_names = ["Starting", "Growing", "Established", "Fixing"]
 stage_fills = [
     "rgba(235, 221, 214, 0.42)",
@@ -200,9 +200,9 @@ stage_fills = [
 ]
 
 x = np.linspace(0, 10, 800)
-# Broad lifecycle curve with the peak in Established and a clear decline into Fixing.
-curve = 0.75 + 6.9 * np.exp(-((x - 5.0) ** 2) / 8.6)
-curve = np.clip(curve, 0.75, 8.1)
+# Taller lifecycle curve with the peak centered and a clearer rise/fall shape.
+curve = 0.7 + 7.9 * np.exp(-((x - 5.1) ** 2) / 7.0)
+curve = np.clip(curve, 0.7, 8.7)
 
 # Stage fills under the lifecycle curve.
 for i in range(4):
@@ -223,7 +223,7 @@ fig.add_trace(go.Scatter(
 
 # Visible stage separators: thin vertical lines from the baseline up to the curve.
 for xsep in stage_bounds[1:-1]:
-    ysep = float(0.75 + 6.9 * np.exp(-((xsep - 5.0) ** 2) / 8.6))
+    ysep = float(0.7 + 7.9 * np.exp(-((xsep - 5.1) ** 2) / 7.0))
     fig.add_shape(
         type="line", x0=xsep, x1=xsep, y0=0, y1=ysep,
         line=dict(color="rgba(100,116,139,0.30)", width=0.8, dash="dot")
@@ -309,7 +309,7 @@ fig.add_annotation(
 
 # Stage labels INSIDE the bell-curve areas, all aligned on the same baseline.
 stage_centers = [(stage_bounds[i] + stage_bounds[i+1]) / 2 for i in range(4)]
-stage_baseline_y = 0.72
+stage_baseline_y = 0.68
 for name, xpos in zip(stage_names, stage_centers):
     fig.add_annotation(
         x=xpos, y=stage_baseline_y,
@@ -332,8 +332,8 @@ fig.add_annotation(
 )
 
 fig.update_layout(
-    height=320,
-    margin=dict(l=110, r=40, t=28, b=138),
+    height=420,
+    margin=dict(l=110, r=40, t=26, b=138),
     paper_bgcolor="white",
     plot_bgcolor="#FCFCFB",
     xaxis=dict(range=[0, 10.25], showgrid=False, zeroline=False, showticklabels=False, title="", fixedrange=True),
@@ -377,16 +377,16 @@ with st.expander("Try another result"):
     st.markdown(f"[Open this result]({url})")
 
 # Write a zip copy for the user if running in notebook env
-base_dir = '/mnt/data/business_stage_map_streamlit_v10'
+base_dir = '/mnt/data/business_stage_map_streamlit_v11'
 os.makedirs(base_dir, exist_ok=True)
 for fname in ['app.py', 'requirements.txt', 'README.md']:
     src = os.path.join('/mnt/data/business_stage_map_streamlit', fname)
     if os.path.exists(src):
         with open(src, 'rb') as fsrc, open(os.path.join(base_dir, fname), 'wb') as fdst:
             fdst.write(fsrc.read())
-zip_path = '/mnt/data/business_stage_map_streamlit_v10.zip'
+zip_path = '/mnt/data/business_stage_map_streamlit_v11.zip'
 with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as z:
     for fname in ['app.py', 'requirements.txt', 'README.md']:
         p = os.path.join(base_dir, fname)
         if os.path.exists(p):
-            z.write(p, arcname=f'business_stage_map_streamlit_v10/{fname}')
+            z.write(p, arcname=f'business_stage_map_streamlit_v11/{fname}')
