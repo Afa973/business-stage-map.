@@ -245,8 +245,8 @@ fig.add_shape(type="line", x0=0, x1=10, y0=cut, y1=cut,
 # Expected benchmark zone.
 fig.add_shape(
     type="rect", x0=x_range[0], x1=x_range[1], y0=y_range[0], y1=y_range[1],
-    fillcolor="rgba(16,185,129,0.13)",
-    line=dict(color="rgba(5,150,105,0.55)", width=0.9, dash="dot")
+    fillcolor="rgba(107,114,128,0.18)",
+    line=dict(color="rgba(75,85,99,0.72)", width=1.0, dash="dot")
 )
 fig.add_annotation(
     x=(x_range[0] + x_range[1]) / 2,
@@ -256,15 +256,17 @@ fig.add_annotation(
     align="center",
     text="You should be here",
     showarrow=False,
-    font=dict(size=10.5, color="#047857"),
-    bgcolor="rgba(236,253,245,0.72)",
-    borderpad=2,
+    font=dict(size=10.5, color="#374151"),
+    bgcolor="rgba(229,231,235,0.88)",
+    bordercolor="rgba(75,85,99,0.0)",
+    borderpad=3,
 )
 
-# Reader position: simple cross, with label offset so it does not sit on top of the mark.
+# Reader position: pin icon, with label offset so it does not sit on top of the mark.
 fig.add_trace(go.Scatter(
-    x=[x_score], y=[y_score], mode="markers",
-    marker=dict(symbol="x-thin", size=13, color="#C53030", line=dict(width=1.6, color="#C53030")),
+    x=[x_score], y=[y_score], mode="text",
+    text=["📍"],
+    textfont=dict(size=21, color="#C53030"),
     hovertemplate=f"Market Reach: {x_score:.1f}<br>Operational Maturity: {y_score:.1f}<extra></extra>",
     showlegend=False
 ))
@@ -376,16 +378,16 @@ with st.expander("Try another result"):
     st.markdown(f"[Open this result]({url})")
 
 # Write a zip copy for the user if running in notebook env
-base_dir = '/mnt/data/business_stage_map_streamlit_v20'
+base_dir = '/mnt/data/business_stage_map_streamlit_v21'
 os.makedirs(base_dir, exist_ok=True)
 for fname in ['app.py', 'requirements.txt', 'README.md']:
     src = os.path.join('/mnt/data/business_stage_map_streamlit', fname)
     if os.path.exists(src):
         with open(src, 'rb') as fsrc, open(os.path.join(base_dir, fname), 'wb') as fdst:
             fdst.write(fsrc.read())
-zip_path = '/mnt/data/business_stage_map_streamlit_v20.zip'
+zip_path = '/mnt/data/business_stage_map_streamlit_v21.zip'
 with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as z:
     for fname in ['app.py', 'requirements.txt', 'README.md']:
         p = os.path.join(base_dir, fname)
         if os.path.exists(p):
-            z.write(p, arcname=f'business_stage_map_streamlit_v20/{fname}')
+            z.write(p, arcname=f'business_stage_map_streamlit_v21/{fname}')
