@@ -190,7 +190,7 @@ fig = go.Figure()
 
 # Geometry: four lifecycle sections. Established sits around the peak;
 # Fixing is shown on the decline, matching the reader-facing stage model.
-stage_bounds = [0.0, 2.7, 4.2, 7.6, 10.0]
+stage_bounds = [0.0, 2.35, 4.05, 6.15, 10.0]
 stage_names = ["Starting", "Growing", "Established", "Fixing"]
 stage_fills = [
     "rgba(235, 221, 214, 0.42)",
@@ -276,33 +276,33 @@ fig.add_annotation(
     font=dict(size=10.5, color="#111827")
 )
 
-# Quadrant labels INSIDE the quadrants, all left-aligned for a cleaner reading rhythm.
+# Quadrant labels INSIDE the four quadrants.
+# Left side labels share the same left edge; right side labels also share the same left edge.
 qfont = dict(size=11.5, color="#64748B")
-left_col_x = 0.72
-right_col_x = cut + 0.72
-upper_y = 9.55
-lower_y = cut - 0.22
-
+left_quad_label_x = 0.65
+right_quad_label_x = 8.55
+upper_quad_label_y = 9.65
+lower_quad_label_y = cut - 0.18
 fig.add_annotation(
-    x=left_col_x, y=upper_y,
+    x=left_quad_label_x, y=upper_quad_label_y,
     text="Ready for more customers",
     showarrow=False, font=qfont,
     xanchor="left", yanchor="top", align="left"
 )
 fig.add_annotation(
-    x=left_col_x, y=lower_y,
+    x=left_quad_label_x, y=lower_quad_label_y,
     text="Building the base",
     showarrow=False, font=qfont,
     xanchor="left", yanchor="top", align="left"
 )
 fig.add_annotation(
-    x=right_col_x, y=upper_y,
+    x=right_quad_label_x, y=upper_quad_label_y,
     text="In balance",
     showarrow=False, font=qfont,
     xanchor="left", yanchor="top", align="left"
 )
 fig.add_annotation(
-    x=right_col_x, y=lower_y,
+    x=right_quad_label_x, y=lower_quad_label_y,
     text="Growing pains",
     showarrow=False, font=qfont,
     xanchor="left", yanchor="top", align="left"
