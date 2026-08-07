@@ -264,7 +264,7 @@ fig.add_annotation(
 # Reader position: simple cross, with label offset so it does not sit on top of the mark.
 fig.add_trace(go.Scatter(
     x=[x_score], y=[y_score], mode="markers",
-    marker=dict(symbol="x-thin", size=13, color="#C53030", line=dict(width=1.6, color="#C53030")),
+    marker=dict(symbol="📍", size=13, color="#C53030", line=dict(width=1.6, color="#C53030")),
     hovertemplate=f"Market Reach: {x_score:.1f}<br>Operational Maturity: {y_score:.1f}<extra></extra>",
     showlegend=False
 ))
