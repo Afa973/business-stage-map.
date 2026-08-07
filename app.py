@@ -184,106 +184,142 @@ st.markdown(
 )
 
 # -----------------------------
-# Integrated bell + quadrant chart
+# Integrated lifecycle + quadrant chart
 # -----------------------------
 fig = go.Figure()
 
-# Curve
-x = np.linspace(0, 10, 600)
-curve = 7.8 * np.exp(-((x - 5.7) ** 2) / 9.2)
-curve = np.clip(curve, 0.35, 8.0)
-
-# Subtle stage fills under curve
-segments = [
-    (0, 3.4, "rgba(229, 213, 206, 0.55)"),
-    (3.4, 6.8, "rgba(215, 229, 215, 0.62)"),
-    (6.8, 10, "rgba(214, 222, 235, 0.65)")
+# Geometry: four lifecycle sections. Established sits around the peak;
+# Fixing is shown on the decline, matching the reader-facing stage model.
+stage_bounds = [0.0, 2.7, 5.3, 7.5, 10.0]
+stage_names = ["Starting", "Growing", "Established", "Fixing"]
+stage_fills = [
+    "rgba(235, 221, 214, 0.42)",
+    "rgba(219, 233, 218, 0.48)",
+    "rgba(224, 232, 244, 0.50)",
+    "rgba(241, 222, 219, 0.34)",
 ]
-for a, b, color in segments:
+
+x = np.linspace(0, 10, 800)
+# Broad lifecycle curve with the peak in Established and a clear decline into Fixing.
+curve = 0.75 + 6.9 * np.exp(-((x - 6.35) ** 2) / 8.6)
+curve = np.clip(curve, 0.75, 8.1)
+
+# Stage fills under the lifecycle curve.
+for i in range(4):
+    a, b = stage_bounds[i], stage_bounds[i + 1]
     mask = (x >= a) & (x <= b)
     fig.add_trace(go.Scatter(
-        x=x[mask], y=curve[mask], mode="lines", line=dict(width=0),
-        fill="tozeroy", fillcolor=color, hoverinfo="skip", showlegend=False
+        x=x[mask], y=curve[mask], mode="lines",
+        line=dict(width=0), fill="tozeroy",
+        fillcolor=stage_fills[i], hoverinfo="skip", showlegend=False
     ))
 
-# Bell curve (thin + dashed)
+# Thin dashed lifecycle curve.
 fig.add_trace(go.Scatter(
     x=x, y=curve, mode="lines",
-    line=dict(color="rgba(100,116,139,0.75)", width=1.8, dash="dash"),
+    line=dict(color="rgba(100,116,139,0.74)", width=1.45, dash="dash"),
     hoverinfo="skip", showlegend=False
 ))
 
-# Thin quadrant lines
-axis_color = "rgba(71,85,105,0.55)"
+# Visible stage separators: thin vertical lines from the baseline up to the curve.
+for xsep in stage_bounds[1:-1]:
+    ysep = float(0.75 + 6.9 * np.exp(-((xsep - 6.35) ** 2) / 8.6))
+    fig.add_shape(
+        type="line", x0=xsep, x1=xsep, y0=0, y1=ysep,
+        line=dict(color="rgba(100,116,139,0.30)", width=0.8, dash="dot")
+    )
+
+# True X/Y axes with subtle arrows.
+base_line = "rgba(51,65,85,0.70)"
+fig.add_shape(type="line", x0=0, x1=10.15, y0=0, y1=0,
+              line=dict(color=base_line, width=1.1))
+fig.add_shape(type="line", x0=0, x1=0, y0=0, y1=10.15,
+              line=dict(color=base_line, width=1.1))
+fig.add_annotation(x=10.15, y=0, text="", showarrow=True, ax=-18, ay=0,
+                   arrowhead=2, arrowsize=0.8, arrowwidth=1.1, arrowcolor=base_line)
+fig.add_annotation(x=0, y=10.15, text="", showarrow=True, ax=0, ay=18,
+                   arrowhead=2, arrowsize=0.8, arrowwidth=1.1, arrowcolor=base_line)
+
+# Quadrant dividers: deliberately lighter than the true axes.
+quad_line = "rgba(100,116,139,0.36)"
 fig.add_shape(type="line", x0=cut, x1=cut, y0=0, y1=10,
-              line=dict(color=axis_color, width=1.2))
+              line=dict(color=quad_line, width=0.75))
 fig.add_shape(type="line", x0=0, x1=10, y0=cut, y1=cut,
-              line=dict(color=axis_color, width=1.2))
+              line=dict(color=quad_line, width=0.75))
 
-# Stage separators along x only in lower band
-for xsep in [3.4, 6.8]:
-    fig.add_shape(type="line", x0=xsep, x1=xsep, y0=0, y1=0.6,
-                  line=dict(color="rgba(100,116,139,0.45)", width=1, dash="dot"))
-
-# Expected zone rectangle - softer distinct color
+# Expected benchmark zone.
 fig.add_shape(
     type="rect", x0=x_range[0], x1=x_range[1], y0=y_range[0], y1=y_range[1],
-    fillcolor="rgba(16, 185, 129, 0.14)", line=dict(color="rgba(16, 185, 129, 0.6)", width=1.1, dash="dot")
+    fillcolor="rgba(16,185,129,0.13)",
+    line=dict(color="rgba(5,150,105,0.55)", width=0.9, dash="dot")
 )
-
-# "You should be here" annotation
 fig.add_annotation(
     x=(x_range[0] + x_range[1]) / 2,
-    y=min(9.5, y_range[1] + 0.45),
+    y=y_range[1] - 0.28,
     text="You should be here",
     showarrow=False,
-    font=dict(size=11, color="#047857"),
-    bgcolor="rgba(236,253,245,0.9)",
-    bordercolor="rgba(16,185,129,0.18)",
-    borderpad=4,
+    font=dict(size=10.5, color="#047857"),
+    bgcolor="rgba(236,253,245,0.88)",
+    borderpad=3,
 )
 
-# Cross marker + label
+# Reader position: simple cross, with label offset so it does not sit on top of the mark.
 fig.add_trace(go.Scatter(
-    x=[x_score], y=[y_score], mode="markers+text",
-    marker=dict(symbol="x", size=18, color="#111827", line=dict(width=2, color="#111827")),
-    text=["You're here"], textposition="top center", textfont=dict(size=11, color="#111827"),
+    x=[x_score], y=[y_score], mode="markers",
+    marker=dict(symbol="x", size=15, color="#111827", line=dict(width=1.5, color="#111827")),
     hovertemplate=f"Market Reach: {x_score:.1f}<br>Operational Maturity: {y_score:.1f}<extra></extra>",
     showlegend=False
 ))
-
-# Quadrant labels - small and plain
-qfont = dict(size=11, color="rgba(71,85,105,0.72)")
-fig.add_annotation(x=1.9, y=8.4, text="Ready for more<br>customers", showarrow=False, font=qfont, align="center")
-fig.add_annotation(x=8.1, y=8.4, text="In balance", showarrow=False, font=qfont, align="center")
-fig.add_annotation(x=1.8, y=0.95, text="Building the base", showarrow=False, font=qfont, align="center")
-fig.add_annotation(x=8.15, y=0.95, text="Growing pains", showarrow=False, font=qfont, align="center")
-
-# Stage labels outside chart (below)
-stage_font = dict(size=12, color="#6B7280")
-fig.add_annotation(x=1.7, y=-0.08, xref="x", yref="paper", text="Starting", showarrow=False, font=stage_font)
-fig.add_annotation(x=5.1, y=-0.08, xref="x", yref="paper", text="Growing", showarrow=False, font=stage_font)
-fig.add_annotation(x=8.3, y=-0.08, xref="x", yref="paper", text="Established", showarrow=False, font=stage_font)
-
-# Axis labels as annotations for cleaner style
 fig.add_annotation(
-    x=5, y=-0.18, xref="x", yref="paper",
-    text="<b>Market reach</b> → more ways people can find and buy from you",
-    showarrow=False, font=dict(size=12, color="#6B7280")
+    x=x_score, y=y_score, text="You're here",
+    showarrow=False, xshift=0, yshift=22,
+    font=dict(size=10.5, color="#111827")
+)
+
+# Quadrant labels OUTSIDE the plotting area.
+qfont = dict(size=11.5, color="#64748B")
+fig.add_annotation(x=0.18, y=1.075, xref="paper", yref="paper",
+                   text="Ready for more customers", showarrow=False,
+                   font=qfont, xanchor="left")
+fig.add_annotation(x=0.82, y=1.075, xref="paper", yref="paper",
+                   text="In balance", showarrow=False,
+                   font=qfont, xanchor="center")
+fig.add_annotation(x=-0.015, y=0.23, xref="paper", yref="paper",
+                   text="Building the base", showarrow=False,
+                   font=qfont, xanchor="right", textangle=-90)
+fig.add_annotation(x=1.015, y=0.23, xref="paper", yref="paper",
+                   text="Growing pains", showarrow=False,
+                   font=qfont, xanchor="left", textangle=90)
+
+# Stage labels OUTSIDE / below the plot, aligned to their stage sections.
+stage_centers = [(stage_bounds[i] + stage_bounds[i+1]) / 2 for i in range(4)]
+for name, xpos in zip(stage_names, stage_centers):
+    fig.add_annotation(
+        x=xpos, y=-0.115, xref="x", yref="paper",
+        text=name, showarrow=False,
+        font=dict(size=11.5, color="#6B7280")
+    )
+
+# Cleaner axis titles.
+fig.add_annotation(
+    x=0.5, y=-0.205, xref="paper", yref="paper",
+    text="<b>Market reach</b>  ·  more ways customers can find and buy from you",
+    showarrow=False, font=dict(size=11.5, color="#64748B")
 )
 fig.add_annotation(
-    x=-0.08, y=5, xref="paper", yref="y",
-    text="<b>Operational maturity</b> → more repeatable systems in the business",
-    showarrow=False, textangle=-90, font=dict(size=12, color="#6B7280")
+    x=-0.105, y=0.5, xref="paper", yref="paper",
+    text="<b>Operational maturity</b>  ·  more repeatable systems",
+    showarrow=False, textangle=-90,
+    font=dict(size=11.5, color="#64748B")
 )
 
 fig.update_layout(
-    height=340,
-    margin=dict(l=42, r=18, t=10, b=72),
+    height=320,
+    margin=dict(l=108, r=105, t=48, b=78),
     paper_bgcolor="white",
     plot_bgcolor="#FCFCFB",
-    xaxis=dict(range=[0, 10], showgrid=False, zeroline=False, showticklabels=False, title=""),
-    yaxis=dict(range=[0, 10], showgrid=False, zeroline=False, showticklabels=False, title=""),
+    xaxis=dict(range=[0, 10.25], showgrid=False, zeroline=False, showticklabels=False, title="", fixedrange=True),
+    yaxis=dict(range=[0, 10.25], showgrid=False, zeroline=False, showticklabels=False, title="", fixedrange=True),
     hoverlabel=dict(bgcolor="white", font_size=12),
 )
 
