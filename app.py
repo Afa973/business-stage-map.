@@ -266,7 +266,7 @@ fig.add_annotation(
 # Reader position: simple cross, with label offset so it does not sit on top of the mark.
 fig.add_trace(go.Scatter(
     x=[x_score], y=[y_score], mode="markers",
-    marker=dict(symbol="x", size=15, color="#111827", line=dict(width=1.5, color="#111827")),
+    marker=dict(symbol="x", size=12, color="#111827", line=dict(width=1.0, color="#111827")),
     hovertemplate=f"Market Reach: {x_score:.1f}<br>Operational Maturity: {y_score:.1f}<extra></extra>",
     showlegend=False
 ))
@@ -276,38 +276,35 @@ fig.add_annotation(
     font=dict(size=10.5, color="#111827")
 )
 
-# Quadrant labels OUTSIDE the plotting area.
+# Quadrant labels INSIDE the four quadrants.
 qfont = dict(size=11.5, color="#64748B")
-fig.add_annotation(x=0.18, y=1.075, xref="paper", yref="paper",
-                   text="Ready for more customers", showarrow=False,
-                   font=qfont, xanchor="left")
-fig.add_annotation(x=0.82, y=1.075, xref="paper", yref="paper",
-                   text="In balance", showarrow=False,
-                   font=qfont, xanchor="center")
-fig.add_annotation(x=-0.015, y=0.23, xref="paper", yref="paper",
-                   text="Building the base", showarrow=False,
-                   font=qfont, xanchor="right", textangle=-90)
-fig.add_annotation(x=1.015, y=0.23, xref="paper", yref="paper",
-                   text="Growing pains", showarrow=False,
-                   font=qfont, xanchor="left", textangle=90)
+fig.add_annotation(x=cut/2, y=(10+cut)/2, text="Ready for more customers",
+                   showarrow=False, font=qfont, xanchor="center", yanchor="middle")
+fig.add_annotation(x=(10+cut)/2, y=(10+cut)/2, text="In balance",
+                   showarrow=False, font=qfont, xanchor="center", yanchor="middle")
+fig.add_annotation(x=cut/2, y=cut/2, text="Building the base",
+                   showarrow=False, font=qfont, xanchor="center", yanchor="middle")
+fig.add_annotation(x=(10+cut)/2, y=cut/2, text="Growing pains",
+                   showarrow=False, font=qfont, xanchor="center", yanchor="middle")
 
-# Stage labels OUTSIDE / below the plot, aligned to their stage sections.
+# Stage labels INSIDE the bell-curve areas.
 stage_centers = [(stage_bounds[i] + stage_bounds[i+1]) / 2 for i in range(4)]
-for name, xpos in zip(stage_names, stage_centers):
+stage_y_positions = [0.5, 1.2, 1.2, 0.8]
+for name, xpos, ypos in zip(stage_names, stage_centers, stage_y_positions):
     fig.add_annotation(
-        x=xpos, y=-0.115, xref="x", yref="paper",
+        x=xpos, y=ypos,
         text=name, showarrow=False,
         font=dict(size=11.5, color="#6B7280")
     )
 
 # Cleaner axis titles with centered explanation lines.
 fig.add_annotation(
-    x=0.5, y=-0.19, xref="paper", yref="paper",
+    x=0.5, y=-0.24, xref="paper", yref="paper",
     text="<b>Market reach</b><br><span style='font-size:10px'>(more ways customers can find and buy from you)</span>",
     showarrow=False, align="center", font=dict(size=11.5, color="#64748B")
 )
 fig.add_annotation(
-    x=-0.095, y=0.5, xref="paper", yref="paper",
+    x=-0.09, y=0.5, xref="paper", yref="paper",
     text="<b>Operational maturity</b><br><span style='font-size:10px'>(more repeatable systems)</span>",
     showarrow=False, textangle=-90, align="center",
     font=dict(size=11.5, color="#64748B")
@@ -315,7 +312,7 @@ fig.add_annotation(
 
 fig.update_layout(
     height=320,
-    margin=dict(l=108, r=48, t=48, b=88),
+    margin=dict(l=110, r=40, t=28, b=110),
     paper_bgcolor="white",
     plot_bgcolor="#FCFCFB",
     xaxis=dict(range=[0, 10.25], showgrid=False, zeroline=False, showticklabels=False, title="", fixedrange=True),
@@ -359,16 +356,16 @@ with st.expander("Try another result"):
     st.markdown(f"[Open this result]({url})")
 
 # Write a zip copy for the user if running in notebook env
-base_dir = '/mnt/data/business_stage_map_streamlit_v5'
+base_dir = '/mnt/data/business_stage_map_streamlit_v6'
 os.makedirs(base_dir, exist_ok=True)
 for fname in ['app.py', 'requirements.txt', 'README.md']:
     src = os.path.join('/mnt/data/business_stage_map_streamlit', fname)
     if os.path.exists(src):
         with open(src, 'rb') as fsrc, open(os.path.join(base_dir, fname), 'wb') as fdst:
             fdst.write(fsrc.read())
-zip_path = '/mnt/data/business_stage_map_streamlit_v5.zip'
+zip_path = '/mnt/data/business_stage_map_streamlit_v6.zip'
 with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as z:
     for fname in ['app.py', 'requirements.txt', 'README.md']:
         p = os.path.join(base_dir, fname)
         if os.path.exists(p):
-            z.write(p, arcname=f'business_stage_map_streamlit_v5/{fname}')
+            z.write(p, arcname=f'business_stage_map_streamlit_v6/{fname}')
