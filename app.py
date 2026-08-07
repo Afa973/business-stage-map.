@@ -255,18 +255,21 @@ fig.add_shape(
 )
 fig.add_annotation(
     x=(x_range[0] + x_range[1]) / 2,
-    y=y_range[1] - 0.28,
+    y=(y_range[0] + y_range[1]) / 2,
+    xanchor="center",
+    yanchor="middle",
+    align="center",
     text="You should be here",
     showarrow=False,
     font=dict(size=10.5, color="#047857"),
-    bgcolor="rgba(236,253,245,0.88)",
-    borderpad=3,
+    bgcolor="rgba(236,253,245,0.72)",
+    borderpad=2,
 )
 
 # Reader position: simple cross, with label offset so it does not sit on top of the mark.
 fig.add_trace(go.Scatter(
     x=[x_score], y=[y_score], mode="markers",
-    marker=dict(symbol="x-thin", size=10, color="#111827", line=dict(width=0.45, color="#111827")),
+    marker=dict(symbol="x-thin", size=10.5, color="#111827", line=dict(width=0.6, color="#111827")),
     hovertemplate=f"Market Reach: {x_score:.1f}<br>Operational Maturity: {y_score:.1f}<extra></extra>",
     showlegend=False
 ))
@@ -321,7 +324,7 @@ for name, xpos in zip(stage_names, stage_centers):
 
 # Cleaner axis titles with centered explanation lines.
 fig.add_annotation(
-    x=0.5, y=-0.33, xref="paper", yref="paper",
+    x=0.5, y=-0.24, xref="paper", yref="paper",
     text="<b>Market reach</b><br><span style='font-size:10px'>(more ways customers can find and buy from you)</span>",
     showarrow=False, align="center", font=dict(size=11.5, color="#64748B")
 )
@@ -334,7 +337,7 @@ fig.add_annotation(
 
 fig.update_layout(
     height=420,
-    margin=dict(l=110, r=40, t=26, b=138),
+    margin=dict(l=110, r=40, t=26, b=118),
     paper_bgcolor="white",
     plot_bgcolor="#FCFCFB",
     xaxis=dict(range=[0, 10.25], showgrid=False, zeroline=False, showticklabels=False, title="", fixedrange=True),
@@ -378,16 +381,16 @@ with st.expander("Try another result"):
     st.markdown(f"[Open this result]({url})")
 
 # Write a zip copy for the user if running in notebook env
-base_dir = '/mnt/data/business_stage_map_streamlit_v14'
+base_dir = '/mnt/data/business_stage_map_streamlit_v15'
 os.makedirs(base_dir, exist_ok=True)
 for fname in ['app.py', 'requirements.txt', 'README.md']:
     src = os.path.join('/mnt/data/business_stage_map_streamlit', fname)
     if os.path.exists(src):
         with open(src, 'rb') as fsrc, open(os.path.join(base_dir, fname), 'wb') as fdst:
             fdst.write(fsrc.read())
-zip_path = '/mnt/data/business_stage_map_streamlit_v14.zip'
+zip_path = '/mnt/data/business_stage_map_streamlit_v15.zip'
 with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as z:
     for fname in ['app.py', 'requirements.txt', 'README.md']:
         p = os.path.join(base_dir, fname)
         if os.path.exists(p):
-            z.write(p, arcname=f'business_stage_map_streamlit_v14/{fname}')
+            z.write(p, arcname=f'business_stage_map_streamlit_v15/{fname}')
