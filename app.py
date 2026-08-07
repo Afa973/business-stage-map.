@@ -276,24 +276,40 @@ fig.add_annotation(
     font=dict(size=10.5, color="#111827")
 )
 
-# Quadrant labels INSIDE the four quadrants, anchored toward the corners (not centered).
+# Quadrant labels INSIDE the four quadrants, positioned exactly by corner.
 qfont = dict(size=11.5, color="#64748B")
-left_x = 0.9
-right_x = 9.1
-top_y = 8.9
-bottom_y = 1.95
-fig.add_annotation(x=left_x, y=top_y, text="Ready for more customers",
-                   showarrow=False, font=qfont, xanchor="left", yanchor="top", align="left")
-fig.add_annotation(x=left_x, y=bottom_y, text="Building the base",
-                   showarrow=False, font=qfont, xanchor="left", yanchor="bottom", align="left")
-fig.add_annotation(x=right_x, y=top_y, text="In balance",
-                   showarrow=False, font=qfont, xanchor="right", yanchor="top", align="right")
-fig.add_annotation(x=right_x, y=bottom_y, text="Growing pains",
-                   showarrow=False, font=qfont, xanchor="right", yanchor="bottom", align="right")
+# top-left quadrant
+fig.add_annotation(
+    x=0.7, y=9.15,
+    text="Ready for more customers",
+    showarrow=False, font=qfont,
+    xanchor="left", yanchor="top", align="left"
+)
+# bottom-left quadrant
+fig.add_annotation(
+    x=0.7, y=0.95,
+    text="Building the base",
+    showarrow=False, font=qfont,
+    xanchor="left", yanchor="bottom", align="left"
+)
+# top-right quadrant
+fig.add_annotation(
+    x=9.3, y=9.15,
+    text="In balance",
+    showarrow=False, font=qfont,
+    xanchor="right", yanchor="top", align="right"
+)
+# bottom-right quadrant
+fig.add_annotation(
+    x=9.3, y=0.95,
+    text="Growing pains",
+    showarrow=False, font=qfont,
+    xanchor="right", yanchor="bottom", align="right"
+)
 
 # Stage labels INSIDE the bell-curve areas, all aligned on the same baseline.
 stage_centers = [(stage_bounds[i] + stage_bounds[i+1]) / 2 for i in range(4)]
-stage_baseline_y = 0.78
+stage_baseline_y = 0.62
 for name, xpos in zip(stage_names, stage_centers):
     fig.add_annotation(
         x=xpos, y=stage_baseline_y,
@@ -361,16 +377,16 @@ with st.expander("Try another result"):
     st.markdown(f"[Open this result]({url})")
 
 # Write a zip copy for the user if running in notebook env
-base_dir = '/mnt/data/business_stage_map_streamlit_v7'
+base_dir = '/mnt/data/business_stage_map_streamlit_v8'
 os.makedirs(base_dir, exist_ok=True)
 for fname in ['app.py', 'requirements.txt', 'README.md']:
     src = os.path.join('/mnt/data/business_stage_map_streamlit', fname)
     if os.path.exists(src):
         with open(src, 'rb') as fsrc, open(os.path.join(base_dir, fname), 'wb') as fdst:
             fdst.write(fsrc.read())
-zip_path = '/mnt/data/business_stage_map_streamlit_v7.zip'
+zip_path = '/mnt/data/business_stage_map_streamlit_v8.zip'
 with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as z:
     for fname in ['app.py', 'requirements.txt', 'README.md']:
         p = os.path.join(base_dir, fname)
         if os.path.exists(p):
-            z.write(p, arcname=f'business_stage_map_streamlit_v7/{fname}')
+            z.write(p, arcname=f'business_stage_map_streamlit_v8/{fname}')
