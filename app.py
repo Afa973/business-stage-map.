@@ -100,13 +100,13 @@ y_label = level(y_score, "y")
 
 cut = 5.5
 if x_score < cut and y_score < cut:
-    quadrant = "Focused Foundation"
+    quadrant = "Building the Base"
 elif x_score >= cut and y_score < cut:
-    quadrant = "Demand Outrunning Delivery"
+    quadrant = "Growing Pains"
 elif x_score < cut and y_score >= cut:
-    quadrant = "Underexposed Engine"
+    quadrant = "Ready for More Customers"
 else:
-    quadrant = "Scalable Balance"
+    quadrant = "In Balance"
 
 def distance_from_range(v, rng):
     lo, hi = rng
@@ -119,29 +119,29 @@ dy = distance_from_range(y_score, y_range)
 max_d = max(dx, dy)
 
 if stage == "Fixing":
-    stage_fit = "Stabilization mode"
+    stage_fit = "Fixing mode"
 elif dx == 0 and dy == 0:
-    stage_fit = "Aligned"
+    stage_fit = "On track"
 elif max_d <= 1.0:
-    stage_fit = "Slightly out of balance"
+    stage_fit = "A little uneven"
 elif max_d <= 2.0:
     stage_fit = "Out of balance"
 else:
-    stage_fit = "Stage mismatch"
+    stage_fit = "Needs attention"
 
 # Interpretation
-if quadrant == "Demand Outrunning Delivery":
+if quadrant == "Growing Pains":
     interpretation = (
         f"Your market reach is ahead of your operating maturity. For a {stage.lower()} {business_type.lower()} business, "
         "this usually means demand is developing faster than the systems supporting it."
     )
     next_move = "Do not add another marketing channel yet. Strengthen delivery, capacity and repeatability first."
-elif quadrant == "Underexposed Engine":
+elif quadrant == "Ready for More Customers":
     interpretation = (
         f"Your operating maturity is stronger than your market reach. You appear capable of handling more demand than you are currently generating."
     )
     next_move = "Use the capacity you already have. Strengthen one additional acquisition channel before adding more operational complexity."
-elif quadrant == "Focused Foundation":
+elif quadrant == "Building the Base":
     interpretation = (
         "Your reach and operating maturity are both still concentrated. That can be appropriate early on, but it becomes a constraint if the business is already beyond the proving stage."
     )
@@ -178,7 +178,7 @@ else:
 st.markdown('<div class="eyebrow">Business diagnostic</div>', unsafe_allow_html=True)
 st.markdown('<div class="hero-title">Your Business Stage Map</div>', unsafe_allow_html=True)
 st.markdown(
-    f'<div class="meta"><b>Self-identified stage:</b> {stage} &nbsp;&nbsp; <b>Observed position:</b> {quadrant}</div>',
+    f'<div class="meta"><b>Self-identified stage:</b> {stage} &nbsp;&nbsp; <b>Your position:</b> {quadrant}</div>',
     unsafe_allow_html=True,
 )
 st.markdown(
@@ -194,8 +194,8 @@ fig = go.Figure()
 # Background stage zones, clipped approximately by bell shape using translucent fills.
 x = np.linspace(0, 10, 500)
 # smooth lifecycle curve: rise, peak, decline
-curve = 8.4 * np.exp(-((x - 5.8) ** 2) / 8.5)
-curve = np.clip(curve, 0.3, 8.6)
+curve = 7.8 * np.exp(-((x - 5.7) ** 2) / 9.5)
+curve = np.clip(curve, 0.3, 8.0)
 
 # Stage fills under curve
 stage_segments = [
@@ -242,16 +242,16 @@ fig.add_trace(go.Scatter(
 ))
 
 # Stage labels
-fig.add_annotation(x=1.4, y=2.1, text="STARTING", showarrow=False, font=dict(size=12, color="#7C6F6B"))
-fig.add_annotation(x=5.0, y=7.2, text="GROWING", showarrow=False, font=dict(size=12, color="#607765"))
-fig.add_annotation(x=8.3, y=6.3, text="ESTABLISHED", showarrow=False, font=dict(size=12, color="#64748B"))
+fig.add_annotation(x=1.5, y=1.7, text="STARTING", showarrow=False, font=dict(size=12, color="#7C6F6B"))
+fig.add_annotation(x=5.0, y=6.6, text="GROWING", showarrow=False, font=dict(size=12, color="#607765"))
+fig.add_annotation(x=8.2, y=5.6, text="ESTABLISHED", showarrow=False, font=dict(size=12, color="#64748B"))
 
 # Quadrant labels
 qfont = dict(size=11, color="rgba(31,41,55,0.62)")
-fig.add_annotation(x=2.2, y=8.8, text="UNDEREXPOSED<br>ENGINE", showarrow=False, font=qfont, align="center")
-fig.add_annotation(x=8.0, y=8.8, text="SCALABLE<br>BALANCE", showarrow=False, font=qfont, align="center")
-fig.add_annotation(x=2.2, y=1.0, text="FOCUSED<br>FOUNDATION", showarrow=False, font=qfont, align="center")
-fig.add_annotation(x=8.0, y=1.0, text="DEMAND OUTRUNNING<br>DELIVERY", showarrow=False, font=qfont, align="center")
+fig.add_annotation(x=2.0, y=8.5, text="READY FOR MORE<br>CUSTOMERS", showarrow=False, font=qfont, align="center")
+fig.add_annotation(x=8.0, y=8.5, text="IN BALANCE", showarrow=False, font=qfont, align="center")
+fig.add_annotation(x=2.0, y=0.9, text="BUILDING<br>THE BASE", showarrow=False, font=qfont, align="center")
+fig.add_annotation(x=8.0, y=0.9, text="GROWING<br>PAINS", showarrow=False, font=qfont, align="center")
 
 # Benchmark annotation
 fig.add_annotation(
@@ -262,16 +262,16 @@ fig.add_annotation(
 )
 
 fig.update_layout(
-    height=620,
-    margin=dict(l=36, r=25, t=25, b=60),
+    height=430,
+    margin=dict(l=28, r=20, t=16, b=48),
     paper_bgcolor="white",
     plot_bgcolor="#FCFCFB",
     xaxis=dict(
-        range=[0,10], title="MARKET REACH  →", showgrid=False, zeroline=False,
+        range=[0,10], title="MARKET REACH  →  more ways to find and buy from you", showgrid=False, zeroline=False,
         showticklabels=False, title_font=dict(size=13, color="#6B7280")
     ),
     yaxis=dict(
-        range=[0,10], title="OPERATIONAL MATURITY  →", showgrid=False, zeroline=False,
+        range=[0,10], title="OPERATIONAL MATURITY  →  more repeatable systems", showgrid=False, zeroline=False,
         showticklabels=False, title_font=dict(size=13, color="#6B7280")
     ),
     hoverlabel=dict(bgcolor="white", font_size=12),
@@ -284,9 +284,9 @@ st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False, 
 # -----------------------------
 c1, c2 = st.columns(2)
 with c1:
-    st.markdown(f'<div class="result-card"><div class="result-label">Market Reach</div><div class="result-value">{x_label}</div><div style="color:#6B7280">{x_score:.1f} / 10</div></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="result-card"><div class="result-label">Market Reach</div><div class="result-value">{x_label}</div></div>', unsafe_allow_html=True)
 with c2:
-    st.markdown(f'<div class="result-card"><div class="result-label">Operational Maturity</div><div class="result-value">{y_label}</div><div style="color:#6B7280">{y_score:.1f} / 10</div></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="result-card"><div class="result-label">Operational Maturity</div><div class="result-value">{y_label}</div></div>', unsafe_allow_html=True)
 
 st.markdown(f"### Your stage fit: **{stage_fit}**")
 st.write(interpretation)
