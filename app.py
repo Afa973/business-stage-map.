@@ -12,7 +12,7 @@ st.set_page_config(page_title="Business Stage Map", page_icon="📍", layout="ce
 st.markdown(
     """
     <style>
-    .block-container {max-width: 940px; padding-top: 2rem; padding-bottom: 3rem;}
+    .block-container {max-width: 940px; padding-top: 2.4rem; padding-bottom: 3rem;}
     h1, h2, h3 {letter-spacing: -0.02em;}
     .eyebrow {font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color:#6B7280;}
     .hero-title {font-size: 2.15rem; font-weight: 800; line-height:1.08; margin: 0.2rem 0 0.5rem 0;}
@@ -172,7 +172,6 @@ else:
 # -----------------------------
 # Header
 # -----------------------------
-st.markdown('<div class="eyebrow">Business diagnostic</div>', unsafe_allow_html=True)
 st.markdown('<div class="hero-title">Your Business Stage Map</div>', unsafe_allow_html=True)
 st.markdown(
     f'<div class="meta"><b>Self-identified stage:</b> {stage} &nbsp;&nbsp; <b>Your position:</b> {quadrant}</div>',
@@ -269,7 +268,7 @@ fig.add_annotation(
 # Reader position: simple cross, with label offset so it does not sit on top of the mark.
 fig.add_trace(go.Scatter(
     x=[x_score], y=[y_score], mode="markers",
-    marker=dict(symbol="x-thin", size=11, color="#111827", line=dict(width=0.85, color="#111827")),
+    marker=dict(symbol="x-thin", size=11.5, color="#C53030", line=dict(width=1.05, color="#C53030")),
     hovertemplate=f"Market Reach: {x_score:.1f}<br>Operational Maturity: {y_score:.1f}<extra></extra>",
     showlegend=False
 ))
@@ -324,12 +323,12 @@ for name, xpos in zip(stage_names, stage_centers):
 
 # Cleaner axis titles with centered explanation lines.
 fig.add_annotation(
-    x=0.5, y=-0.18, xref="paper", yref="paper",
+    x=0.5, y=-0.14, xref="paper", yref="paper",
     text="<b>Market reach</b><br><span style='font-size:10px'>(more ways customers can find and buy from you)</span>",
     showarrow=False, align="center", font=dict(size=11.5, color="#64748B")
 )
 fig.add_annotation(
-    x=-0.06, y=0.5, xref="paper", yref="paper",
+    x=-0.04, y=0.5, xref="paper", yref="paper",
     text="<b>Operational maturity</b><br><span style='font-size:10px'>(more repeatable systems)</span>",
     showarrow=False, textangle=-90, align="center",
     font=dict(size=11.5, color="#64748B")
@@ -337,7 +336,7 @@ fig.add_annotation(
 
 fig.update_layout(
     height=420,
-    margin=dict(l=102, r=40, t=26, b=98),
+    margin=dict(l=96, r=40, t=26, b=84),
     paper_bgcolor="white",
     plot_bgcolor="#FCFCFB",
     xaxis=dict(range=[0, 10.25], showgrid=False, zeroline=False, showticklabels=False, title="", fixedrange=True),
@@ -381,16 +380,16 @@ with st.expander("Try another result"):
     st.markdown(f"[Open this result]({url})")
 
 # Write a zip copy for the user if running in notebook env
-base_dir = '/mnt/data/business_stage_map_streamlit_v16'
+base_dir = '/mnt/data/business_stage_map_streamlit_v17'
 os.makedirs(base_dir, exist_ok=True)
 for fname in ['app.py', 'requirements.txt', 'README.md']:
     src = os.path.join('/mnt/data/business_stage_map_streamlit', fname)
     if os.path.exists(src):
         with open(src, 'rb') as fsrc, open(os.path.join(base_dir, fname), 'wb') as fdst:
             fdst.write(fsrc.read())
-zip_path = '/mnt/data/business_stage_map_streamlit_v16.zip'
+zip_path = '/mnt/data/business_stage_map_streamlit_v17.zip'
 with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as z:
     for fname in ['app.py', 'requirements.txt', 'README.md']:
         p = os.path.join(base_dir, fname)
         if os.path.exists(p):
-            z.write(p, arcname=f'business_stage_map_streamlit_v16/{fname}')
+            z.write(p, arcname=f'business_stage_map_streamlit_v17/{fname}')
