@@ -31,14 +31,14 @@ st.markdown(
     div[data-testid="stPlotlyChart"] {margin-top:-0.2rem;}
     
 .disclaimer-under-chart {
-    margin-top: -12px;
+    margin-top: -34px;
+    margin-left: 92px;
+    margin-right: 24px;
     padding: 0;
-    font-size: 0.80rem;
-    line-height: 1.4;
+    font-size: 0.76rem;
+    line-height: 1.38;
     color: #6b7280;
     font-style: italic;
-    width: 100%;
-    max-width: 100%;
     box-sizing: border-box;
 }
 
@@ -227,13 +227,13 @@ systems_display = escape(systems_answer.strip("[]") or "Answer not received")
 
 if stage == map_stage:
     conclusion = (
-        f"You selected <b>{stage}</b>, and the customer routes and repeatable systems shown above "
-        f"also place you in the <b>{map_stage}</b> region on this map."
+        f"You chose <b>{stage}</b>. The ways customers find and buy from you, together with the "
+        f"repeatable systems you already have, also place you in the <b>{map_stage}</b> area of this map."
     )
 else:
     conclusion = (
-        f"You selected <b>{stage}</b>, but the customer routes and repeatable systems shown above "
-        f"place you closer to the <b>{map_stage}</b> region on this map."
+        f"You chose <b>{stage}</b>. The ways customers find and buy from you, together with the "
+        f"repeatable systems you already have, place you closer to <b>{map_stage}</b> on this map."
     )
 
 disclaimer = (
@@ -435,21 +435,15 @@ with left:
         use_container_width=True,
         config={"displayModeBar": False, "responsive": True},
     )
-
-
-
-
-
-st.markdown(
-    """
-    <div class="disclaimer-under-chart">
-        This is a simple visual guide to help you think about your business, not a final assessment.
-        Other factors not covered here may change the picture.
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-
+    st.markdown(
+        """
+        <div class="disclaimer-under-chart">
+            This is a simple visual guide to help you think about your business, not a final assessment.
+            Other factors not covered here may change the picture.
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 with right:
     # Keep HTML flush-left. Markdown treats indented HTML as a code block,
