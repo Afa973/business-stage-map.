@@ -81,7 +81,9 @@ st.markdown(
         border: 1px solid #E5E7EB;
         background: #FFFFFF;
         box-shadow: 0 8px 24px rgba(17,24,39,0.05);
-        margin-top: 0.55rem;
+
+        /* Restore original dashboard position */
+        margin-top: -1.75rem;
     }
 
     .summary-kicker {
@@ -165,13 +167,12 @@ st.markdown(
 
 
     /* =====================================================
-       SAVE BUTTON ABOVE DASHBOARD
+       SMALL WHITE SAVE BUTTON
        ===================================================== */
 
     div[data-testid="stDownloadButton"] {
-        display: flex;
-        justify-content: flex-start;
-        margin: 0 0 0.4rem 0;
+        margin: 0 !important;
+        padding: 0 !important;
     }
 
     div[data-testid="stDownloadButton"] button {
@@ -181,9 +182,9 @@ st.markdown(
         border: 1px solid #D8DEE7 !important;
         border-radius: 999px !important;
 
-        padding: 0.42rem 0.95rem !important;
+        padding: 0.38rem 0.85rem !important;
 
-        font-size: 0.79rem !important;
+        font-size: 0.78rem !important;
         font-weight: 700 !important;
 
         white-space: nowrap !important;
@@ -366,7 +367,6 @@ benchmarks = {
     ("Product", "Established"):
         ((7.0, 10.0), (6.5, 10.0)),
 
-
     ("Service", "Starting"):
         ((2.0, 4.5), (1.5, 4.5)),
 
@@ -375,7 +375,6 @@ benchmarks = {
 
     ("Service", "Established"):
         ((6.5, 9.0), (6.5, 10.0)),
-
 
     ("Content", "Starting"):
         ((2.0, 4.5), (1.5, 4.5)),
@@ -386,7 +385,6 @@ benchmarks = {
     ("Content", "Established"):
         ((7.5, 10.0), (6.5, 10.0)),
 
-
     ("Local", "Starting"):
         ((2.5, 5.0), (2.0, 5.0)),
 
@@ -395,7 +393,6 @@ benchmarks = {
 
     ("Local", "Established"):
         ((7.0, 10.0), (7.0, 10.0)),
-
 
     ("Hybrid", "Starting"):
         ((2.5, 5.0), (2.0, 5.0)),
@@ -2102,7 +2099,7 @@ except Exception as error:
 
 
 # =========================================================
-# NORMAL PAGE HEADER
+# PAGE HEADER
 # =========================================================
 st.markdown(
     '<div class="hero-title">Your Business Stage Map</div>',
@@ -2132,20 +2129,65 @@ st.markdown(
 )
 
 
-st.markdown(
-
-    (
-        f'<span class="pill">'
-        f'{business_type}'
-        f'</span>'
-
-        f'<span class="pill">'
-        f'Concern: {concern}'
-        f'</span>'
-    ),
-
-    unsafe_allow_html=True
+# =========================================================
+# PILLS + SAVE BUTTON ON SAME ROW
+# =========================================================
+#
+# This is the position you marked in red.
+#
+# The first column contains the two pills.
+# The second column contains the Save button.
+# The third column simply absorbs the remaining page width.
+#
+pill_col, save_col, spacer_col = st.columns(
+    [
+        2.80,
+        1.20,
+        6.00
+    ],
+    gap="small",
+    vertical_alignment="center"
 )
+
+
+with pill_col:
+
+    st.markdown(
+
+        (
+            f'<span class="pill">'
+            f'{business_type}'
+            f'</span>'
+
+            f'<span class="pill">'
+            f'Concern: {concern}'
+            f'</span>'
+        ),
+
+        unsafe_allow_html=True
+    )
+
+
+with save_col:
+
+    if result_png_bytes is not None:
+
+        st.download_button(
+
+            label="↓ Save my result",
+
+            data=result_png_bytes,
+
+            file_name="my-business-stage-map.png",
+
+            mime="image/png",
+
+            type="secondary",
+
+            use_container_width=False,
+
+            key="save_result_top"
+        )
 
 
 if export_error is not None:
@@ -2207,29 +2249,6 @@ with left:
 
 
 with right:
-
-    # -----------------------------------------------------
-    # SAVE BUTTON ABOVE THE DASHBOARD
-    # -----------------------------------------------------
-    if result_png_bytes is not None:
-
-        st.download_button(
-
-            label="↓ Save my result",
-
-            data=result_png_bytes,
-
-            file_name="my-business-stage-map.png",
-
-            mime="image/png",
-
-            type="secondary",
-
-            use_container_width=False,
-
-            key="save_result_dashboard"
-        )
-
 
     dashboard_html = f"""
 <div class="summary-card">
