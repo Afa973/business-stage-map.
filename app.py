@@ -31,13 +31,15 @@ st.markdown(
     div[data-testid="stPlotlyChart"] {margin-top:-0.2rem;}
     
 .disclaimer-under-chart {
-    margin-top: 8px;
-    padding: 0 6px;
-    font-size: 0.82rem;
-    line-height: 1.45;
+    margin-top: -2px;
+    padding: 0 8px;
+    font-size: 0.80rem;
+    line-height: 1.42;
     color: #6b7280;
     font-style: italic;
-    max-width: 900px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 </style>
@@ -265,7 +267,7 @@ stage_regions = [
     # x0, x1, y0, y1, fill
     (0, cut, 0, cut, "rgba(236, 214, 203, 0.42)"),   # Starting
     (0, cut, cut, 10, "rgba(201, 228, 199, 0.46)"),  # Growing
-    (cut, 10, cut, 10, "rgba(205, 221, 244, 0.50)"), # Established
+    (cut, 10, cut, 10, "rgba(224, 214, 242, 0.66)"), # Established
     (cut, 10, 0, cut, "rgba(239, 212, 205, 0.42)"),  # Fixing
 ]
 
@@ -436,6 +438,7 @@ with left:
 
 
 
+
 st.markdown(
     """
     <div class="disclaimer-under-chart">
@@ -445,6 +448,7 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
 with right:
     # Keep HTML flush-left. Markdown treats indented HTML as a code block,
     # which is why the previous version displayed the <div> tags literally.
