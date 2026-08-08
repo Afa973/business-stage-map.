@@ -29,7 +29,18 @@ st.markdown(
     .result-line {font-size:0.88rem; line-height:1.43; color:#1F2937; margin:0;}
     .summary-disclaimer {font-size:0.70rem; line-height:1.42; color:#7A818D; font-style:italic; margin:0.72rem 0 0 0; padding-top:0.66rem; border-top:1px solid #F0F2F5;}
     div[data-testid="stPlotlyChart"] {margin-top:-0.2rem;}
-    </style>
+    
+.disclaimer-under-chart {
+    margin-top: 8px;
+    padding: 0 6px;
+    font-size: 0.82rem;
+    line-height: 1.45;
+    color: #6b7280;
+    font-style: italic;
+    max-width: 900px;
+}
+
+</style>
     """,
     unsafe_allow_html=True,
 )
@@ -423,6 +434,17 @@ with left:
         config={"displayModeBar": False, "responsive": True},
     )
 
+
+
+st.markdown(
+    """
+    <div class="disclaimer-under-chart">
+        This is a simple visual guide to help you think about your business, not a final assessment.
+        Other factors not covered here may change the picture.
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 with right:
     # Keep HTML flush-left. Markdown treats indented HTML as a code block,
     # which is why the previous version displayed the <div> tags literally.
@@ -444,6 +466,5 @@ with right:
 <div class="result-label">What this suggests</div>
 <p class="result-line">{conclusion}</p>
 </div>
-<p class="summary-disclaimer">{disclaimer}</p>
 </div>"""
     st.markdown(dashboard_html, unsafe_allow_html=True)
