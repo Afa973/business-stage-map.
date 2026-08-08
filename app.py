@@ -1,4 +1,3 @@
-import base64
 import io
 import re
 from html import escape, unescape
@@ -26,80 +25,25 @@ st.markdown(
     .block-container {
         max-width: 1320px;
         padding-top: 2.4rem;
-        padding-bottom: 0.8rem;
+        padding-bottom: 1.0rem;
     }
 
     h1, h2, h3 {
         letter-spacing: -0.02em;
     }
 
-    /* -----------------------------------------------------
-       TITLE + SAVE BUTTON
-       These two items are in the SAME HTML row.
-       ----------------------------------------------------- */
-
-    .title-save-row {
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        gap: 14px;
-        margin: 0 0 0.35rem 0;
-        padding: 0;
-        flex-wrap: wrap;
-    }
-
     .hero-title {
         font-size: 2.05rem;
         font-weight: 800;
         line-height: 1.15;
-        margin: 0;
-        padding: 0;
+        margin: 0 0 0.35rem 0;
+        padding-top: 0.15rem;
         color: #1F2937;
-        letter-spacing: -0.02em;
-    }
-
-    .save-result-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-
-        background: #FFFFFF;
-        color: #374151 !important;
-
-        border: 1px solid #D6DCE5;
-        border-radius: 999px;
-
-        padding: 7px 14px;
-
-        font-size: 0.78rem;
-        font-weight: 700;
-        line-height: 1;
-
-        text-decoration: none !important;
-        white-space: nowrap;
-
-        box-shadow: 0 2px 7px rgba(17,24,39,0.06);
-
-        transition:
-            background-color 0.15s ease,
-            border-color 0.15s ease,
-            box-shadow 0.15s ease;
-    }
-
-    .save-result-btn:hover {
-        background: #F8FAFC;
-        color: #111827 !important;
-        border-color: #B8C0CC;
-
-        box-shadow: 0 4px 10px rgba(17,24,39,0.09);
-
-        text-decoration: none !important;
     }
 
     .meta {
         font-size: 0.98rem;
         color: #374151;
-        margin-top: 0.15rem;
         margin-bottom: 0.25rem;
     }
 
@@ -137,7 +81,7 @@ st.markdown(
         border: 1px solid #E5E7EB;
         background: #FFFFFF;
         box-shadow: 0 8px 24px rgba(17,24,39,0.05);
-        margin-top: -1.75rem;
+        margin-top: 0.55rem;
     }
 
     .summary-kicker {
@@ -217,6 +161,51 @@ st.markdown(
 
     div[data-testid="stPlotlyChart"] {
         margin-top: -0.2rem;
+    }
+
+
+    /* =====================================================
+       SAVE BUTTON ABOVE DASHBOARD
+       ===================================================== */
+
+    div[data-testid="stDownloadButton"] {
+        display: flex;
+        justify-content: flex-start;
+        margin: 0 0 0.4rem 0;
+    }
+
+    div[data-testid="stDownloadButton"] button {
+        background: #FFFFFF !important;
+        color: #374151 !important;
+
+        border: 1px solid #D8DEE7 !important;
+        border-radius: 999px !important;
+
+        padding: 0.42rem 0.95rem !important;
+
+        font-size: 0.79rem !important;
+        font-weight: 700 !important;
+
+        white-space: nowrap !important;
+
+        box-shadow: 0 2px 7px rgba(17,24,39,0.06) !important;
+
+        transition:
+            background-color 0.15s ease,
+            border-color 0.15s ease,
+            box-shadow 0.15s ease;
+    }
+
+    div[data-testid="stDownloadButton"] button p {
+        white-space: nowrap !important;
+        margin: 0 !important;
+    }
+
+    div[data-testid="stDownloadButton"] button:hover {
+        background: #F8FAFC !important;
+        color: #111827 !important;
+        border-color: #BBC3CE !important;
+        box-shadow: 0 4px 10px rgba(17,24,39,0.09) !important;
     }
 
     </style>
@@ -450,37 +439,8 @@ y_range_plot = (
 
 
 # =========================================================
-# LABELS AND DIAGNOSTICS
+# MAP STAGE
 # =========================================================
-def level(score, axis):
-
-    if score < 3.5:
-        return "Early"
-
-    if score < 5.5:
-        return "Developing"
-
-    if score < 7.5:
-        return "Strong"
-
-    return (
-        "Broad"
-        if axis == "x"
-        else "Mature"
-    )
-
-
-x_label = level(
-    x_score,
-    "x"
-)
-
-y_label = level(
-    y_score,
-    "y"
-)
-
-
 cut = 5.0
 
 
@@ -549,13 +509,9 @@ systems_display = escape(
 
 
 stage_order = {
-
     "Starting": 0,
-
     "Growing": 1,
-
     "Established": 2,
-
 }
 
 
@@ -595,9 +551,7 @@ elif (
     and
     map_stage in stage_order
     and
-    stage_order[map_stage]
-    >
-    stage_order[stage]
+    stage_order[map_stage] > stage_order[stage]
 ):
 
     conclusion = (
@@ -613,9 +567,7 @@ elif (
     and
     map_stage in stage_order
     and
-    stage_order[map_stage]
-    <
-    stage_order[stage]
+    stage_order[map_stage] < stage_order[stage]
 ):
 
     conclusion = (
@@ -643,7 +595,7 @@ disclaimer = (
 
 
 # =========================================================
-# PNG HELPERS
+# PNG HELPER FUNCTIONS
 # =========================================================
 def strip_html_tags(text):
 
@@ -656,37 +608,24 @@ def strip_html_tags(text):
     ).strip()
 
 
-def load_font(
-    size=18,
-    bold=False
-):
+def load_font(size=18, bold=False):
 
     if bold:
 
         candidates = [
-
             "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
-
             "/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf",
-
             "/Library/Fonts/Arial Bold.ttf",
-
             "C:/Windows/Fonts/arialbd.ttf",
-
         ]
 
     else:
 
         candidates = [
-
             "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-
             "/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf",
-
             "/Library/Fonts/Arial.ttf",
-
             "C:/Windows/Fonts/arial.ttf",
-
         ]
 
 
@@ -707,11 +646,7 @@ def load_font(
     return ImageFont.load_default()
 
 
-def text_size(
-    draw,
-    text,
-    font
-):
+def text_size(draw, text, font):
 
     bbox = draw.textbbox(
         (0, 0),
@@ -732,38 +667,23 @@ def wrap_text_to_width(
     max_width
 ):
 
-    words = str(
-        text
-    ).split()
-
+    words = str(text).split()
 
     if not words:
-
         return [""]
 
-
     lines = []
-
     current = words[0]
-
 
     for word in words[1:]:
 
-        trial = (
-            current
-            +
-            " "
-            +
-            word
-        )
-
+        trial = current + " " + word
 
         width, _ = text_size(
             draw,
             trial,
             font
         )
-
 
         if width <= max_width:
 
@@ -777,11 +697,9 @@ def wrap_text_to_width(
 
             current = word
 
-
     lines.append(
         current
     )
-
 
     return lines
 
@@ -800,10 +718,7 @@ def draw_wrapped_text(
 
     lines = []
 
-
-    for paragraph in str(
-        text
-    ).split("\n"):
+    for paragraph in str(text).split("\n"):
 
         wrapped = wrap_text_to_width(
             draw,
@@ -819,14 +734,9 @@ def draw_wrapped_text(
         )
 
 
-    if hasattr(
-        font,
-        "getmetrics"
-    ):
+    if hasattr(font, "getmetrics"):
 
-        ascent, descent = (
-            font.getmetrics()
-        )
+        ascent, descent = font.getmetrics()
 
     else:
 
@@ -875,9 +785,7 @@ def draw_pill(
 ):
 
     pad_x = 16
-
     pad_y = 8
-
 
     tw, th = text_size(
         draw,
@@ -885,13 +793,11 @@ def draw_pill(
         font
     )
 
-
     width = (
         tw
         +
         (pad_x * 2)
     )
-
 
     height = (
         th
@@ -900,7 +806,6 @@ def draw_pill(
         -
         2
     )
-
 
     draw.rounded_rectangle(
         (
@@ -915,7 +820,6 @@ def draw_pill(
         width=1
     )
 
-
     draw.text(
         (
             x + pad_x,
@@ -925,7 +829,6 @@ def draw_pill(
         font=font,
         fill=fg
     )
-
 
     return (
         x
@@ -967,7 +870,6 @@ def build_result_png(
 
 
     canvas_w = 1900
-
     canvas_h = 1380
 
 
@@ -1035,14 +937,10 @@ def build_result_png(
 
 
     left_x = 70
-
     left_w = 1080
 
-
     right_x = 1180
-
     right_w = 650
-
 
     top_y = 60
 
@@ -1061,11 +959,7 @@ def build_result_png(
     )
 
 
-    y = (
-        top_y
-        +
-        68
-    )
+    y = top_y + 68
 
 
     # -----------------------------
@@ -1232,7 +1126,7 @@ def build_result_png(
 
 
     # -----------------------------
-    # Chart including disclaimer
+    # Chart
     # -----------------------------
     chart_copy = chart_img.copy()
 
@@ -1256,14 +1150,11 @@ def build_result_png(
 
 
     # -----------------------------
-    # Summary card
+    # Right summary card
     # -----------------------------
     card_x = right_x
-
     card_y = 145
-
     card_w = right_w
-
     card_h = 830
 
 
@@ -1285,23 +1176,9 @@ def build_result_png(
     )
 
 
-    inner_x = (
-        card_x
-        +
-        28
-    )
-
-    inner_y = (
-        card_y
-        +
-        26
-    )
-
-    inner_w = (
-        card_w
-        -
-        56
-    )
+    inner_x = card_x + 28
+    inner_y = card_y + 26
+    inner_w = card_w - 56
 
 
     draw.text(
@@ -1619,7 +1496,7 @@ for (
 
 
 # -----------------------------
-# Main axes
+# Axes
 # -----------------------------
 base_line = (
     "rgba(51,65,85,0.70)"
@@ -2090,15 +1967,13 @@ fig.add_annotation(
 
 
 # =========================================================
-# DISCLAIMER
-# Now INSIDE the figure so it cannot be clipped by Streamlit.
-# Larger font, close to the original size.
+# DISCLAIMER INSIDE PLOTLY
 # =========================================================
 fig.add_annotation(
 
     x=0.5,
 
-    y=-0.285,
+    y=-0.30,
 
     xref="paper",
 
@@ -2107,9 +1982,7 @@ fig.add_annotation(
     text=(
         "<i>"
         "This is a simple visual guide to help you think about your business, "
-        "not a final assessment."
-        "<br>"
-        "Other factors not covered here may change the picture."
+        "not a final assessment. Other factors not covered here may change the picture."
         "</i>"
     ),
 
@@ -2129,17 +2002,17 @@ fig.add_annotation(
 
 
 # -----------------------------
-# Plot layout
+# Layout
 # -----------------------------
 fig.update_layout(
 
-    height=410,
+    height=420,
 
     margin=dict(
         l=78,
         r=12,
         t=12,
-        b=115
+        b=120
     ),
 
     paper_bgcolor="white",
@@ -2229,61 +2102,14 @@ except Exception as error:
 
 
 # =========================================================
-# TITLE + SAVE LINK
-#
-# This is intentionally NOT st.download_button.
-# Both elements live in ONE HTML flex row, so the button
-# cannot float elsewhere on the page.
+# NORMAL PAGE HEADER
 # =========================================================
-
-if result_png_bytes is not None:
-
-    png_base64 = base64.b64encode(
-        result_png_bytes
-    ).decode("utf-8")
-
-
-    title_html = f"""
-<div class="title-save-row">
-
-    <div class="hero-title">
-        Your Business Stage Map
-    </div>
-
-    <a
-        class="save-result-btn"
-        href="data:image/png;base64,{png_base64}"
-        download="my-business-stage-map.png"
-    >
-        ↓ Save my result
-    </a>
-
-</div>
-"""
-
-
-else:
-
-    title_html = """
-<div class="title-save-row">
-
-    <div class="hero-title">
-        Your Business Stage Map
-    </div>
-
-</div>
-"""
-
-
 st.markdown(
-    title_html,
+    '<div class="hero-title">Your Business Stage Map</div>',
     unsafe_allow_html=True
 )
 
 
-# =========================================================
-# HEADER DETAILS
-# =========================================================
 st.markdown(
 
     (
@@ -2333,7 +2159,7 @@ if export_error is not None:
 
 
 # =========================================================
-# MAP + INTERPRETATION
+# MAP + RIGHT-HAND DASHBOARD
 # =========================================================
 left, right = st.columns(
     [
@@ -2381,6 +2207,29 @@ with left:
 
 
 with right:
+
+    # -----------------------------------------------------
+    # SAVE BUTTON ABOVE THE DASHBOARD
+    # -----------------------------------------------------
+    if result_png_bytes is not None:
+
+        st.download_button(
+
+            label="↓ Save my result",
+
+            data=result_png_bytes,
+
+            file_name="my-business-stage-map.png",
+
+            mime="image/png",
+
+            type="secondary",
+
+            use_container_width=False,
+
+            key="save_result_dashboard"
+        )
+
 
     dashboard_html = f"""
 <div class="summary-card">
