@@ -31,10 +31,10 @@ st.markdown(
     div[data-testid="stPlotlyChart"] {margin-top:-0.2rem;}
     
 .disclaimer-under-chart {
-    margin-top: -2px;
-    padding: 0 8px;
+    margin-top: -12px;
+    padding: 0;
     font-size: 0.80rem;
-    line-height: 1.42;
+    line-height: 1.4;
     color: #6b7280;
     font-style: italic;
     width: 100%;
@@ -265,10 +265,10 @@ fig = go.Figure()
 # and the benchmark zone remain the strongest visual signals.
 stage_regions = [
     # x0, x1, y0, y1, fill
-    (0, cut, 0, cut, "rgba(214, 235, 211, 0.72)"),   # Starting — green
-    (0, cut, cut, 10, "rgba(249, 236, 170, 0.72)"),  # Growing — yellow
-    (cut, 10, cut, 10, "rgba(226, 216, 244, 0.72)"), # Established — purple
-    (cut, 10, 0, cut, "rgba(246, 221, 197, 0.72)"),  # Fixing — orange
+    (0, cut, 0, cut, "rgba(226, 238, 223, 0.52)"),   # Starting — green
+    (0, cut, cut, 10, "rgba(246, 239, 201, 0.50)"),  # Growing — yellow
+    (cut, 10, cut, 10, "rgba(232, 225, 242, 0.52)"), # Established — purple
+    (cut, 10, 0, cut, "rgba(242, 226, 211, 0.50)"),  # Fixing — orange
 ]
 
 for x0, x1, y0, y1, fill in stage_regions:
@@ -439,6 +439,7 @@ with left:
 
 
 
+
 st.markdown(
     """
     <div class="disclaimer-under-chart">
@@ -448,6 +449,7 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
 
 with right:
     # Keep HTML flush-left. Markdown treats indented HTML as a code block,
