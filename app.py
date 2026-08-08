@@ -38,9 +38,20 @@ def q(name, default):
         return val[0]
     return val
 
-business_type = str(q("type", "Product")).title()
-stage = str(q("stage", "Growing")).title()
-concern = str(q("concern", "Getting customers")).replace("+", " ")
+# Tally sends the full visible option text, for example:
+# "Service — your time or skill" or "Growing — scaling up".
+# The app only needs the short category before the descriptive dash.
+def short_answer(value):
+    text = str(value).replace("+", " ").strip()
+    for separator in (" — ", " – ", " - "):
+        if separator in text:
+            text = text.split(separator, 1)[0].strip()
+            break
+    return text
+
+business_type = short_answer(q("type", "Product")).title()
+stage = short_answer(q("stage", "Growing")).title()
+concern = short_answer(q("concern", "Getting customers"))
 
 try:
     x_score = float(q("x", 7.2))
@@ -379,16 +390,16 @@ with st.expander("Try another result"):
     st.markdown(f"[Open this result]({url})")
 
 # Write a zip copy for the user if running in notebook env
-base_dir = '/mnt/data/business_stage_map_streamlit_v25'
+base_dir = '/mnt/data/business_stage_map_streamlit_v26'
 os.makedirs(base_dir, exist_ok=True)
 for fname in ['app.py', 'requirements.txt', 'README.md']:
     src = os.path.join('/mnt/data/business_stage_map_streamlit', fname)
     if os.path.exists(src):
         with open(src, 'rb') as fsrc, open(os.path.join(base_dir, fname), 'wb') as fdst:
             fdst.write(fsrc.read())
-zip_path = '/mnt/data/business_stage_map_streamlit_v25.zip'
+zip_path = '/mnt/data/business_stage_map_streamlit_v26.zip'
 with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as z:
     for fname in ['app.py', 'requirements.txt', 'README.md']:
         p = os.path.join(base_dir, fname)
         if os.path.exists(p):
-            z.write(p, arcname=f'business_stage_map_streamlit_v25/{fname}')
+            z.write(p, arcname=f'business_stage_map_streamlit_v26/{fname}')
