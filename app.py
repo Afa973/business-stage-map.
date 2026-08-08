@@ -24,7 +24,7 @@ st.markdown(
 
     .block-container {
         max-width: 1320px;
-        padding-top: 2.2rem;
+        padding-top: 2.4rem;
         padding-bottom: 0.8rem;
     }
 
@@ -37,7 +37,7 @@ st.markdown(
         font-weight: 800;
         line-height: 1.15;
         margin: 0;
-        padding: 0.08rem 0 0 0;
+        padding: 0;
         white-space: nowrap;
     }
 
@@ -162,45 +162,14 @@ st.markdown(
 
     div[data-testid="stPlotlyChart"] {
         margin-top: -0.2rem;
-        margin-bottom: 0 !important;
     }
 
 
     /* =====================================================
-       DISCLAIMER
-       Keep it tucked directly beneath the x-axis so it stays
-       visible in the first screen, but do not clip the text.
+       SMALL WHITE SAVE BUTTON
+       No forced height / top positioning.
+       Streamlit handles the vertical centering.
        ===================================================== */
-
-    .disclaimer-under-chart {
-        margin-top: -19px;
-        margin-left: 78px;
-        margin-right: 12px;
-        margin-bottom: 0.25rem;
-        padding: 0;
-        font-size: 0.74rem;
-        line-height: 1.38;
-        color: #6B7280;
-        font-style: italic;
-        box-sizing: border-box;
-        position: relative;
-        z-index: 2;
-    }
-
-
-    /* =====================================================
-       SMALL WHITE SAVE BUTTON BESIDE TITLE
-       ===================================================== */
-
-    div[data-testid="stDownloadButton"] {
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-
-    div[data-testid="stDownloadButton"] > div {
-        margin: 0 !important;
-        padding: 0 !important;
-    }
 
     div[data-testid="stDownloadButton"] button {
         background: #FFFFFF !important;
@@ -209,17 +178,10 @@ st.markdown(
         border: 1px solid #D8DEE7 !important;
         border-radius: 999px !important;
 
-        min-height: 34px !important;
-        height: 34px !important;
+        padding: 0.38rem 0.90rem !important;
 
-        width: auto !important;
-        min-width: 138px !important;
-
-        padding: 0 0.82rem !important;
-
-        font-size: 0.76rem !important;
+        font-size: 0.78rem !important;
         font-weight: 700 !important;
-        line-height: 1 !important;
 
         white-space: nowrap !important;
 
@@ -228,27 +190,19 @@ st.markdown(
         transition:
             background-color 0.15s ease,
             border-color 0.15s ease,
-            transform 0.15s ease,
             box-shadow 0.15s ease;
     }
 
     div[data-testid="stDownloadButton"] button p {
         white-space: nowrap !important;
         margin: 0 !important;
-        line-height: 1 !important;
     }
 
     div[data-testid="stDownloadButton"] button:hover {
         background: #F8FAFC !important;
         color: #111827 !important;
         border-color: #BBC3CE !important;
-        transform: translateY(-1px);
         box-shadow: 0 4px 10px rgba(17,24,39,0.09) !important;
-    }
-
-    div[data-testid="stDownloadButton"] button:active {
-        transform: translateY(0);
-        box-shadow: 0 2px 5px rgba(17,24,39,0.06) !important;
     }
 
     </style>
@@ -272,6 +226,9 @@ def q(name, default):
     return val
 
 
+# Tally may send the full visible option text, for example:
+# "Service — your time or skill" or "Growing — scaling up".
+# The app only needs the short category before the descriptive dash.
 def short_answer(value):
     text = str(value).replace("+", " ").strip()
 
@@ -315,6 +272,7 @@ def split_multi(value):
             if sep in text:
                 raw_items = text.split(sep)
                 break
+
         else:
             raw_items = text.split(",")
 
@@ -354,6 +312,7 @@ except Exception:
     y_score = 4.5
 
 
+# Defensive handling in case score is passed on a 0–100 scale.
 if x_score > 10:
     x_score = x_score / 10
 
@@ -376,6 +335,9 @@ y_score = max(
 # VISUAL POSITION MAPPING
 # =========================================================
 def display_coord(score):
+    # 0 -> 1
+    # 5 -> 5
+    # 10 -> 9
     return 1.0 + (
         float(score) * 0.8
     )
@@ -446,6 +408,7 @@ benchmarks = {
 }
 
 
+# Fixing is treated as a stabilization state.
 benchmark_stage = (
     "Growing"
     if stage == "Fixing"
@@ -511,31 +474,26 @@ y_label = level(
 cut = 5.0
 
 
-if (
-    x_score < cut
-    and
-    y_score < cut
-):
+if x_score < cut and y_score < cut:
+
     map_stage = "Starting"
     map_descriptor = "Building the base"
 
-elif (
-    x_score < cut
-    and
-    y_score >= cut
-):
+
+elif x_score < cut and y_score >= cut:
+
     map_stage = "Growing"
     map_descriptor = "Ready for more customers"
 
-elif (
-    x_score >= cut
-    and
-    y_score >= cut
-):
+
+elif x_score >= cut and y_score >= cut:
+
     map_stage = "Established"
     map_descriptor = "In balance"
 
+
 else:
+
     map_stage = "Fixing"
     map_descriptor = "Growing pains"
 
@@ -546,6 +504,7 @@ else:
 def answer_chips(items, fallback):
 
     if not items:
+
         return (
             f'<span class="answer-chip">'
             f'{escape(fallback)}'
@@ -591,73 +550,71 @@ if stage == map_stage:
     conclusion = (
         f"You chose <b>{stage}</b>, and your answers point "
         f"to the same place on the map. "
-        f"Your customer reach and repeatable systems are "
-        f"broadly in line with a <b>{stage}</b> business."
+        f"Your customer reach and repeatable systems are broadly "
+        f"in line with a <b>{stage}</b> business."
     )
+
 
 elif map_stage == "Fixing":
 
     conclusion = (
-        f"You chose <b>{stage}</b>. Customers can find and "
-        f"buy from you in several ways, but your repeatable "
-        f"systems are not keeping pace. That moves you toward "
-        f"<b>Fixing</b>, where growth can start putting strain "
-        f"on the business."
+        f"You chose <b>{stage}</b>. Customers can find and buy "
+        f"from you in several ways, but your repeatable systems "
+        f"are not keeping pace. That moves you toward <b>Fixing</b>, "
+        f"where growth can start putting strain on the business."
     )
+
 
 elif stage == "Fixing":
 
     conclusion = (
-        f"You chose <b>Fixing</b>, but your current answers "
-        f"place you closer to <b>{map_stage}</b>. "
-        f"Your customer reach and repeatable systems look "
-        f"stronger than a typical fixing position on this map."
+        f"You chose <b>Fixing</b>, but your current answers place "
+        f"you closer to <b>{map_stage}</b>. Your customer reach and "
+        f"repeatable systems look stronger than a typical fixing "
+        f"position on this map."
     )
+
 
 elif (
     stage in stage_order
-    and
-    map_stage in stage_order
-    and
-    stage_order[map_stage] > stage_order[stage]
+    and map_stage in stage_order
+    and stage_order[map_stage] > stage_order[stage]
 ):
 
     conclusion = (
-        f"You chose <b>{stage}</b>. Your answers show wider "
-        f"customer reach and more repeatable systems than that "
-        f"stage usually suggests, so you sit closer to "
-        f"<b>{map_stage}</b> on this map."
+        f"You chose <b>{stage}</b>. Your answers show wider customer "
+        f"reach and more repeatable systems than that stage usually "
+        f"suggests, so you sit closer to <b>{map_stage}</b> on this map."
     )
+
 
 elif (
     stage in stage_order
-    and
-    map_stage in stage_order
-    and
-    stage_order[map_stage] < stage_order[stage]
+    and map_stage in stage_order
+    and stage_order[map_stage] < stage_order[stage]
 ):
 
     conclusion = (
-        f"You chose <b>{stage}</b>. Your answers show fewer "
-        f"customer routes and less-developed repeatable systems "
-        f"than that stage usually needs, so you sit closer to "
-        f"<b>{map_stage}</b>. That gap is worth looking at."
+        f"You chose <b>{stage}</b>. Your answers show fewer customer "
+        f"routes and less-developed repeatable systems than that stage "
+        f"usually needs, so you sit closer to <b>{map_stage}</b>. "
+        f"That gap is worth looking at."
     )
+
 
 else:
 
     conclusion = (
-        f"You chose <b>{stage}</b>, while your answers place "
-        f"you closer to <b>{map_stage}</b> on this map. "
-        f"The difference is a useful prompt to look more closely "
-        f"at your customer reach and systems."
+        f"You chose <b>{stage}</b>, while your answers place you "
+        f"closer to <b>{map_stage}</b> on this map. The difference "
+        f"is a useful prompt to look more closely at your customer "
+        f"reach and systems."
     )
 
 
 disclaimer = (
-    "This is a simple visual guide to help you think about your "
-    "business, not a final assessment. Other factors not covered "
-    "here may change the picture."
+    "This is a simple visual guide to help you think about your business, "
+    "not a final assessment. Other factors not covered here may change the picture."
 )
 
 
@@ -744,7 +701,11 @@ def wrap_text_to_width(
 
     for word in words[1:]:
 
-        trial = current + " " + word
+        trial = (
+            current
+            + " "
+            + word
+        )
 
         width, _ = text_size(
             draw,
@@ -915,10 +876,11 @@ def build_result_png(
     find_answers,
     buy_answers,
     systems_answer,
-    conclusion_html,
-    disclaimer_text
+    conclusion_html
 ):
 
+    # Export Plotly chart.
+    # The disclaimer is already inside the figure itself.
     chart_bytes = pio.to_image(
         fig,
         format="png",
@@ -926,6 +888,7 @@ def build_result_png(
         height=980,
         scale=2
     )
+
 
     chart_img = Image.open(
         io.BytesIO(
@@ -935,8 +898,10 @@ def build_result_png(
         "RGBA"
     )
 
+
     canvas_w = 1900
     canvas_h = 1350
+
 
     background = Image.new(
         "RGB",
@@ -947,10 +912,13 @@ def build_result_png(
         "white"
     )
 
+
     draw = ImageDraw.Draw(
         background
     )
 
+
+    # Fonts
     font_title = load_font(
         44,
         bold=True
@@ -998,9 +966,6 @@ def build_result_png(
         18
     )
 
-    font_small = load_font(
-        15
-    )
 
     left_x = 70
     left_w = 1080
@@ -1010,6 +975,10 @@ def build_result_png(
 
     top_y = 60
 
+
+    # -----------------------------
+    # PNG title
+    # -----------------------------
     draw.text(
         (
             left_x,
@@ -1020,8 +989,17 @@ def build_result_png(
         fill="#111827"
     )
 
-    y = top_y + 68
 
+    y = (
+        top_y
+        +
+        68
+    )
+
+
+    # -----------------------------
+    # Self-selected stage
+    # -----------------------------
     draw.text(
         (
             left_x,
@@ -1032,11 +1010,13 @@ def build_result_png(
         fill="#374151"
     )
 
+
     width1, _ = text_size(
         draw,
         "You think you're at:",
         font_meta_bold
     )
+
 
     draw.text(
         (
@@ -1052,8 +1032,13 @@ def build_result_png(
         fill="#374151"
     )
 
+
     y += 34
 
+
+    # -----------------------------
+    # Calculated stage
+    # -----------------------------
     draw.text(
         (
             left_x,
@@ -1064,11 +1049,13 @@ def build_result_png(
         fill="#374151"
     )
 
+
     width2, _ = text_size(
         draw,
         "Your answers show:",
         font_meta_bold
     )
+
 
     draw.text(
         (
@@ -1084,9 +1071,15 @@ def build_result_png(
         fill="#374151"
     )
 
+
     y += 46
 
+
+    # -----------------------------
+    # Pills
+    # -----------------------------
     px = left_x
+
 
     px = draw_pill(
         draw,
@@ -1096,6 +1089,7 @@ def build_result_png(
         font_pill
     )
 
+
     px = draw_pill(
         draw,
         px,
@@ -1104,17 +1098,24 @@ def build_result_png(
         font_pill
     )
 
+
     y += 52
 
+
+    # -----------------------------
+    # Map explanation
+    # -----------------------------
     logic_prefix = (
         "How this map works:"
     )
+
 
     logic_rest = (
         "Your position is based on how customers find and buy from you "
         "(questions 5–6) and how repeatable your systems are (question 7). "
         "The benchmark is based on the stage you selected (question 3)."
     )
+
 
     draw.text(
         (
@@ -1126,11 +1127,13 @@ def build_result_png(
         fill="#4B5563"
     )
 
+
     prefix_width, _ = text_size(
         draw,
         logic_prefix,
         font_logic_bold
     )
+
 
     draw_wrapped_text(
         draw,
@@ -1153,16 +1156,23 @@ def build_result_png(
         line_gap=4
     )
 
+
     y += 42
 
+
+    # -----------------------------
+    # Chart
+    # -----------------------------
     chart_copy = chart_img.copy()
+
 
     chart_copy.thumbnail(
         (
             left_w,
-            760
+            800
         )
     )
+
 
     background.paste(
         chart_copy,
@@ -1173,35 +1183,15 @@ def build_result_png(
         chart_copy
     )
 
-    chart_bottom = (
-        y
-        +
-        chart_copy.size[1]
-    )
 
-    draw_wrapped_text(
-        draw,
-        disclaimer_text,
-        (
-            left_x
-            +
-            78,
-            chart_bottom
-            +
-            2
-        ),
-        font_small,
-        "#6B7280",
-        left_w
-        -
-        90,
-        line_gap=4
-    )
-
+    # -----------------------------
+    # Right summary card
+    # -----------------------------
     card_x = right_x
     card_y = 145
     card_w = right_w
     card_h = 830
+
 
     draw.rounded_rectangle(
         (
@@ -1219,6 +1209,7 @@ def build_result_png(
         outline="#E5E7EB",
         width=2
     )
+
 
     inner_x = (
         card_x
@@ -1238,6 +1229,7 @@ def build_result_png(
         56
     )
 
+
     draw.text(
         (
             inner_x,
@@ -1248,8 +1240,13 @@ def build_result_png(
         fill="#6B7280"
     )
 
+
     inner_y += 40
 
+
+    # -----------------------------
+    # How customers find
+    # -----------------------------
     draw.text(
         (
             inner_x,
@@ -1260,7 +1257,9 @@ def build_result_png(
         fill="#6B7280"
     )
 
+
     inner_y += 24
+
 
     find_text = (
         " · ".join(
@@ -1270,6 +1269,7 @@ def build_result_png(
         else
         "Answer not received"
     )
+
 
     inner_y = draw_wrapped_text(
         draw,
@@ -1284,7 +1284,9 @@ def build_result_png(
         line_gap=5
     )
 
+
     inner_y += 14
+
 
     draw.line(
         (
@@ -1299,8 +1301,13 @@ def build_result_png(
         width=1
     )
 
+
     inner_y += 18
 
+
+    # -----------------------------
+    # How customers buy
+    # -----------------------------
     draw.text(
         (
             inner_x,
@@ -1311,7 +1318,9 @@ def build_result_png(
         fill="#6B7280"
     )
 
+
     inner_y += 24
+
 
     buy_text = (
         " · ".join(
@@ -1321,6 +1330,7 @@ def build_result_png(
         else
         "Answer not received"
     )
+
 
     inner_y = draw_wrapped_text(
         draw,
@@ -1335,7 +1345,9 @@ def build_result_png(
         line_gap=5
     )
 
+
     inner_y += 14
+
 
     draw.line(
         (
@@ -1350,8 +1362,13 @@ def build_result_png(
         width=1
     )
 
+
     inner_y += 18
 
+
+    # -----------------------------
+    # Repeatable systems
+    # -----------------------------
     draw.text(
         (
             inner_x,
@@ -1362,13 +1379,16 @@ def build_result_png(
         fill="#6B7280"
     )
 
+
     inner_y += 24
+
 
     systems_text = (
         systems_answer.strip("[]")
         or
         "Answer not received"
     )
+
 
     inner_y = draw_wrapped_text(
         draw,
@@ -1383,7 +1403,9 @@ def build_result_png(
         line_gap=5
     )
 
+
     inner_y += 14
+
 
     draw.line(
         (
@@ -1398,8 +1420,13 @@ def build_result_png(
         width=1
     )
 
+
     inner_y += 18
 
+
+    # -----------------------------
+    # What this suggests
+    # -----------------------------
     draw.text(
         (
             inner_x,
@@ -1410,11 +1437,14 @@ def build_result_png(
         fill="#6B7280"
     )
 
+
     inner_y += 24
+
 
     conclusion_plain = strip_html_tags(
         conclusion_html
     )
+
 
     draw_wrapped_text(
         draw,
@@ -1429,26 +1459,33 @@ def build_result_png(
         line_gap=6
     )
 
+
     output = io.BytesIO()
+
 
     background.save(
         output,
         format="PNG"
     )
 
+
     output.seek(
         0
     )
+
 
     return output.getvalue()
 
 
 # =========================================================
-# BUILD BUSINESS STAGE MAP
+# CREATE BUSINESS STAGE MAP
 # =========================================================
 fig = go.Figure()
 
 
+# -----------------------------
+# Stage backgrounds
+# -----------------------------
 stage_regions = [
 
     (
@@ -1507,6 +1544,9 @@ for (
     )
 
 
+# -----------------------------
+# Main axes
+# -----------------------------
 base_line = (
     "rgba(51,65,85,0.70)"
 )
@@ -1538,6 +1578,9 @@ fig.add_shape(
 )
 
 
+# -----------------------------
+# Quadrant dividers
+# -----------------------------
 quad_line = (
     "rgba(100,116,139,0.42)"
 )
@@ -1569,6 +1612,9 @@ fig.add_shape(
 )
 
 
+# -----------------------------
+# Benchmark box
+# -----------------------------
 benchmark_colors = {
 
     "Starting": {
@@ -1623,13 +1669,17 @@ benchmark_cy = (
 
 fig.add_shape(
     type="rect",
+
     x0=x_range_plot[0],
     x1=x_range_plot[1],
+
     y0=y_range_plot[0],
     y1=y_range_plot[1],
+
     fillcolor=benchmark_color[
         "fill"
     ],
+
     line=dict(
         color=benchmark_color[
             "line"
@@ -1643,28 +1693,40 @@ fig.add_shape(
 fig.add_annotation(
     x=benchmark_cx,
     y=benchmark_cy,
+
     xanchor="center",
     yanchor="middle",
+
     align="center",
+
     text=(
         f"<b>{benchmark_label}</b>"
     ),
+
     showarrow=False,
+
     font=dict(
         size=10.5,
         color="#1F2937"
     ),
+
     bgcolor=(
         "rgba(255,255,255,0.84)"
     ),
+
     bordercolor=benchmark_color[
         "line"
     ],
+
     borderwidth=0.8,
+
     borderpad=2.0
 )
 
 
+# -----------------------------
+# Gap
+# -----------------------------
 inside_benchmark = (
 
     x_range_plot[0]
@@ -1687,10 +1749,13 @@ if not inside_benchmark:
 
     fig.add_shape(
         type="line",
+
         x0=benchmark_cx,
         y0=benchmark_cy,
+
         x1=x_plot,
         y1=y_plot,
+
         line=dict(
             color=benchmark_color[
                 "line"
@@ -1698,6 +1763,7 @@ if not inside_benchmark:
             width=1.4,
             dash="dot"
         ),
+
         layer="below"
     )
 
@@ -1731,19 +1797,27 @@ if not inside_benchmark:
     fig.add_annotation(
         x=gap_x,
         y=gap_y,
+
         text="<b>Gap</b>",
+
         showarrow=False,
+
         font=dict(
             size=9.2,
             color="#2F343B"
         ),
+
         bgcolor=(
             "rgba(255,255,255,0.82)"
         ),
+
         borderpad=1.5
     )
 
 
+# -----------------------------
+# Reader position
+# -----------------------------
 pin_text_y = max(
     0.35,
     y_plot - 0.62
@@ -1774,11 +1848,9 @@ fig.add_trace(
         ),
 
         hovertemplate=(
-            f"Market Reach: "
-            f"{x_score:.1f}"
+            f"Market Reach: {x_score:.1f}"
             f"<br>"
-            f"Operational Maturity: "
-            f"{y_score:.1f}"
+            f"Operational Maturity: {y_score:.1f}"
             f"<extra></extra>"
         ),
 
@@ -1788,12 +1860,17 @@ fig.add_trace(
 
 
 fig.add_annotation(
+
     x=x_plot,
+
     y=pin_text_y,
+
     text=(
         "<b>Your position</b>"
     ),
+
     showarrow=False,
+
     font=dict(
         size=12,
         color="#C53030"
@@ -1801,6 +1878,9 @@ fig.add_annotation(
 )
 
 
+# -----------------------------
+# Stage labels
+# -----------------------------
 def add_stage_label(
     x,
     y,
@@ -1810,8 +1890,11 @@ def add_stage_label(
 ):
 
     fig.add_annotation(
+
         x=x,
+
         y=y,
+
         text=(
             f"<b>{stage_name}</b>"
             f"<br>"
@@ -1819,10 +1902,15 @@ def add_stage_label(
             f"{descriptor}"
             f"</span>"
         ),
+
         showarrow=False,
+
         xanchor=xanchor,
+
         yanchor="top",
+
         align="left",
+
         font=dict(
             size=13,
             color="#475569"
@@ -1866,11 +1954,19 @@ add_stage_label(
 )
 
 
+# -----------------------------
+# Axis titles
+# -----------------------------
 fig.add_annotation(
+
     x=0.5,
-    y=-0.14,
+
+    y=-0.115,
+
     xref="paper",
+
     yref="paper",
+
     text=(
         "<b>Market reach</b>"
         "<br>"
@@ -1878,8 +1974,11 @@ fig.add_annotation(
         "(more ways customers can find and buy from you)"
         "</span>"
     ),
+
     showarrow=False,
+
     align="center",
+
     font=dict(
         size=11.0,
         color="#64748B"
@@ -1888,10 +1987,15 @@ fig.add_annotation(
 
 
 fig.add_annotation(
+
     x=-0.070,
+
     y=0.5,
+
     xref="paper",
+
     yref="paper",
+
     text=(
         "<b>Operational maturity</b>"
         "<br>"
@@ -1899,9 +2003,13 @@ fig.add_annotation(
         "(more repeatable systems)"
         "</span>"
     ),
+
     showarrow=False,
+
     textangle=-90,
+
     align="center",
+
     font=dict(
         size=11.5,
         color="#64748B"
@@ -1909,6 +2017,44 @@ fig.add_annotation(
 )
 
 
+# =========================================================
+# DISCLAIMER — NOW PART OF THE PLOTLY FIGURE
+# =========================================================
+fig.add_annotation(
+
+    x=0.5,
+
+    y=-0.245,
+
+    xref="paper",
+
+    yref="paper",
+
+    text=(
+        "<i>"
+        "This is a simple visual guide to help you think about your business, "
+        "not a final assessment. Other factors not covered here may change the picture."
+        "</i>"
+    ),
+
+    showarrow=False,
+
+    xanchor="center",
+
+    yanchor="top",
+
+    align="center",
+
+    font=dict(
+        size=9.5,
+        color="#6B7280"
+    )
+)
+
+
+# -----------------------------
+# Layout
+# -----------------------------
 fig.update_layout(
 
     height=390,
@@ -1917,7 +2063,7 @@ fig.update_layout(
         l=78,
         r=12,
         t=12,
-        b=62
+        b=96
     ),
 
     paper_bgcolor="white",
@@ -1925,26 +2071,38 @@ fig.update_layout(
     plot_bgcolor="#FCFCFB",
 
     xaxis=dict(
+
         range=[
             0,
             10.25
         ],
+
         showgrid=False,
+
         zeroline=False,
+
         showticklabels=False,
+
         title="",
+
         fixedrange=True
     ),
 
     yaxis=dict(
+
         range=[
             0,
             10.25
         ],
+
         showgrid=False,
+
         zeroline=False,
+
         showticklabels=False,
+
         title="",
+
         fixedrange=True
     ),
 
@@ -1959,6 +2117,7 @@ fig.update_layout(
 # CREATE DOWNLOADABLE PNG
 # =========================================================
 result_png_bytes = None
+
 export_error = None
 
 
@@ -1982,9 +2141,7 @@ try:
 
         systems_answer=systems_answer,
 
-        conclusion_html=conclusion,
-
-        disclaimer_text=disclaimer
+        conclusion_html=conclusion
     )
 
 
@@ -1994,22 +2151,22 @@ except Exception as error:
 
 
 # =========================================================
-# TITLE + SMALL SAVE BUTTON
+# HEADING + SAVE BUTTON
 # =========================================================
 #
-# Button column is deliberately wider than before so the
-# text remains on ONE LINE.
+# vertical_alignment="center" is doing the positioning.
+# There is no manual button height or top offset.
 #
-# Blank third column keeps the button beside the title
-# rather than on the far-right side of the page.
+# Third blank column keeps the button close to the heading.
 #
-title_col, save_col, title_space = st.columns(
+title_col, save_col, blank_col = st.columns(
     [
-        3.80,
-        1.45,
-        4.75
+        3.75,
+        1.40,
+        4.85
     ],
-    gap="small"
+    gap="small",
+    vertical_alignment="center"
 )
 
 
@@ -2030,12 +2187,19 @@ with save_col:
     if result_png_bytes is not None:
 
         st.download_button(
-            label="↓  Save my result",
+
+            label="↓ Save my result",
+
             data=result_png_bytes,
+
             file_name="my-business-stage-map.png",
+
             mime="image/png",
+
             type="secondary",
+
             use_container_width=False,
+
             key="save_result_top"
         )
 
@@ -2044,6 +2208,7 @@ with save_col:
 # HEADER DETAILS
 # =========================================================
 st.markdown(
+
     (
         f"<div class='meta'>"
 
@@ -2059,11 +2224,13 @@ st.markdown(
 
         f"</div>"
     ),
+
     unsafe_allow_html=True
 )
 
 
 st.markdown(
+
     (
         f'<span class="pill">'
         f'{business_type}'
@@ -2073,6 +2240,7 @@ st.markdown(
         f'Concern: {concern}'
         f'</span>'
     ),
+
     unsafe_allow_html=True
 )
 
@@ -2102,6 +2270,7 @@ left, right = st.columns(
 with left:
 
     st.markdown(
+
         (
             '<div class="map-logic">'
 
@@ -2116,27 +2285,21 @@ with left:
 
             '</div>'
         ),
+
         unsafe_allow_html=True
     )
 
 
     st.plotly_chart(
+
         fig,
+
         use_container_width=True,
+
         config={
             "displayModeBar": False,
             "responsive": True
         }
-    )
-
-
-    st.markdown(
-        f"""
-<div class="disclaimer-under-chart">
-{disclaimer}
-</div>
-""",
-        unsafe_allow_html=True
     )
 
 
