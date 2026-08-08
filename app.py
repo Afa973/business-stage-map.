@@ -18,27 +18,27 @@ st.markdown(
     .pill {display:inline-block; padding:0.3rem 0.65rem; border-radius:999px; background:#F3F4F6; margin-right:0.35rem; margin-bottom:0.25rem; font-weight:600; font-size:0.86rem;}
     .map-logic {font-size:0.76rem; line-height:1.42; color:#6B7280; margin:0.28rem 0 0.15rem 0; max-width:920px;}
     .map-logic b {color:#4B5563;}
-    .summary-card {padding:1.0rem 1.05rem 0.95rem 1.05rem; border-radius:15px; border:1px solid #E5E7EB; background:#FFFFFF; box-shadow:0 8px 24px rgba(17,24,39,0.05); margin-top:-1.75rem;}
-    .summary-kicker {font-size:0.70rem; text-transform:uppercase; letter-spacing:0.09em; color:#6B7280; font-weight:800; margin-bottom:0.45rem;}
-    .dash-item {padding:0.72rem 0 0.74rem 0; border-bottom:1px solid #E9EDF2;}
+    .summary-card {padding:0.78rem 0.82rem 0.76rem 0.82rem; border-radius:14px; border:1px solid #E5E7EB; background:#FFFFFF; box-shadow:0 8px 24px rgba(17,24,39,0.05); margin-top:-1.75rem;}
+    .summary-kicker {font-size:0.64rem; text-transform:uppercase; letter-spacing:0.09em; color:#6B7280; font-weight:800; margin-bottom:0.45rem;}
+    .dash-item {padding:0.56rem 0 0.58rem 0; border-bottom:1px solid #E9EDF2;}
     .dash-item:last-of-type {border-bottom:none;}
-    .dash-label {font-size:0.68rem; text-transform:uppercase; letter-spacing:0.06em; color:#6B7280; font-weight:800; margin-bottom:0.34rem;}
-    .dash-value {font-size:0.88rem; line-height:1.36; color:#1F2937; font-weight:650;}
-    .answer-chip {display:inline-block; padding:0.22rem 0.48rem; margin:0 0.22rem 0.22rem 0; border-radius:999px; background:#F3F4F6; border:1px solid #E5E7EB; color:#263244; font-size:0.76rem; line-height:1.25; font-weight:650;}
-    .systems-value {font-size:1.0rem; color:#111827; font-weight:750;}
-    .result-wrap {border-top:1px solid #E5E7EB; margin-top:0.48rem; padding-top:0.72rem;}
-    .result-label {font-size:0.68rem; text-transform:uppercase; letter-spacing:0.06em; color:#6B7280; font-weight:800; margin-bottom:0.28rem;}
-    .result-line {font-size:0.88rem; line-height:1.43; color:#1F2937; margin:0;}
+    .dash-label {font-size:0.63rem; text-transform:uppercase; letter-spacing:0.06em; color:#6B7280; font-weight:800; margin-bottom:0.34rem;}
+    .dash-value {font-size:0.82rem; line-height:1.36; color:#1F2937; font-weight:650;}
+    .answer-chip {display:inline-block; padding:0.18rem 0.42rem; margin:0 0.22rem 0.22rem 0; border-radius:999px; background:#F3F4F6; border:1px solid #E5E7EB; color:#263244; font-size:0.72rem; line-height:1.22; font-weight:650;}
+    .systems-value {font-size:0.92rem; color:#111827; font-weight:750;}
+    .result-wrap {border-top:1px solid #E5E7EB; margin-top:0.38rem; padding-top:0.56rem;}
+    .result-label {font-size:0.63rem; text-transform:uppercase; letter-spacing:0.06em; color:#6B7280; font-weight:800; margin-bottom:0.28rem;}
+    .result-line {font-size:0.82rem; line-height:1.38; color:#1F2937; margin:0;}
     .summary-disclaimer {font-size:0.70rem; line-height:1.42; color:#7A818D; font-style:italic; margin:0.72rem 0 0 0; padding-top:0.66rem; border-top:1px solid #F0F2F5;}
     div[data-testid="stPlotlyChart"] {margin-top:-0.2rem;}
     
 .disclaimer-under-chart {
-    margin-top: -34px;
-    margin-left: 92px;
-    margin-right: 24px;
+    margin-top: -28px;
+    margin-left: 72px;
+    margin-right: 12px;
     padding: 0;
-    font-size: 0.76rem;
-    line-height: 1.38;
+    font-size: 0.74rem;
+    line-height: 1.36;
     color: #6b7280;
     font-style: italic;
     box-sizing: border-box;
@@ -280,12 +280,6 @@ st.markdown(
     f'<span class="pill">Concern: {concern}</span>',
     unsafe_allow_html=True,
 )
-st.markdown(
-    '<div class="map-logic"><b>How this map works:</b> Your position is based on how customers find and buy from you '
-    '(questions 5–6) and how repeatable your systems are (question 7). '
-    'The benchmark is based on the stage you selected (question 3).</div>',
-    unsafe_allow_html=True,
-)
 
 # -----------------------------
 # Four-stage X/Y matrix
@@ -335,10 +329,10 @@ fig.add_shape(
 # Expected benchmark zone based on business type + self-identified stage.
 # The border uses the selected stage's book color so the benchmark is easier to spot.
 benchmark_colors = {
-    "Starting": {"line": "#78A878", "fill": "rgba(120,168,120,0.16)"},
-    "Growing": {"line": "#B99A36", "fill": "rgba(185,154,54,0.16)"},
-    "Established": {"line": "#8A72B4", "fill": "rgba(138,114,180,0.16)"},
-    "Fixing": {"line": "#C57D48", "fill": "rgba(197,125,72,0.16)"},
+    "Starting": {"line": "#2F343B", "fill": "rgba(120,168,120,0.12)"},
+    "Growing": {"line": "#2F343B", "fill": "rgba(185,154,54,0.12)"},
+    "Established": {"line": "#2F343B", "fill": "rgba(138,114,180,0.12)"},
+    "Fixing": {"line": "#2F343B", "fill": "rgba(197,125,72,0.12)"},
 }
 benchmark_color = benchmark_colors.get(stage, benchmark_colors["Growing"])
 benchmark_label = f"Stability range: {stage}" if stage == "Fixing" else f"Expected range: {stage}"
@@ -389,7 +383,7 @@ if not inside_benchmark:
         y=gap_y,
         text="<b>Gap</b>",
         showarrow=False,
-        font=dict(size=9.5, color=benchmark_color["line"]),
+        font=dict(size=9.2, color="#2F343B"),
         bgcolor="rgba(255,255,255,0.82)",
         borderpad=1.5,
     )
@@ -457,7 +451,7 @@ fig.add_annotation(
     font=dict(size=11.5, color="#64748B"),
 )
 fig.add_annotation(
-    x=-0.06,
+    x=-0.045,
     y=0.5,
     xref="paper",
     yref="paper",
@@ -473,7 +467,7 @@ fig.add_annotation(
 
 fig.update_layout(
     height=390,
-    margin=dict(l=92, r=24, t=20, b=76),
+    margin=dict(l=72, r=12, t=12, b=62),
     paper_bgcolor="white",
     plot_bgcolor="#FCFCFB",
     xaxis=dict(
@@ -501,6 +495,12 @@ fig.update_layout(
 left, right = st.columns([2.35, 1.0], gap="large")
 
 with left:
+    st.markdown(
+        '<div class="map-logic"><b>How this map works:</b> Your position is based on how customers find and buy from you '
+        '(questions 5–6) and how repeatable your systems are (question 7). '
+        'The benchmark is based on the stage you selected (question 3).</div>',
+        unsafe_allow_html=True,
+    )
     st.plotly_chart(
         fig,
         use_container_width=True,
