@@ -1970,7 +1970,7 @@ fig.add_annotation(
 
     x=0.5,
 
-    y=-0.30,
+    y=-0.255,
 
     xref="paper",
 
