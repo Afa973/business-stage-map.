@@ -73,6 +73,18 @@ x_score = max(0, min(10, x_score))
 y_score = max(0, min(10, y_score))
 
 # -----------------------------
+# Visual position mapping
+# -----------------------------
+# Keep the assessment itself on the true 0–10 scale, but inset plotted
+# positions so a minimum or maximum result never sits on a chart boundary.
+# This mapping preserves the midpoint exactly: 0 -> 1, 5 -> 5, 10 -> 9.
+def display_coord(score):
+    return 1.0 + (float(score) * 0.8)
+
+x_plot = display_coord(x_score)
+y_plot = display_coord(y_score)
+
+# -----------------------------
 # Benchmarks
 # -----------------------------
 benchmarks = {
@@ -99,6 +111,10 @@ benchmark_stage = "Growing" if stage == "Fixing" else stage
 x_range, y_range = benchmarks.get(
     (business_type, benchmark_stage), ((4.5, 7.5), (4.5, 7.5))
 )
+
+# Transform the benchmark box using the same visual mapping as the reader pin.
+x_range_plot = (display_coord(x_range[0]), display_coord(x_range[1]))
+y_range_plot = (display_coord(y_range[0]), display_coord(y_range[1]))
 
 # -----------------------------
 # Labels and diagnostics
@@ -310,14 +326,14 @@ fig.add_shape(
 # Expected benchmark zone based on business type + self-identified stage.
 fig.add_shape(
     type="rect",
-    x0=x_range[0], x1=x_range[1],
-    y0=y_range[0], y1=y_range[1],
+    x0=x_range_plot[0], x1=x_range_plot[1],
+    y0=y_range_plot[0], y1=y_range_plot[1],
     fillcolor="rgba(107,114,128,0.34)",
     line=dict(color="rgba(75,85,99,0.72)", width=1.0, dash="dot"),
 )
 fig.add_annotation(
-    x=(x_range[0] + x_range[1]) / 2,
-    y=(y_range[0] + y_range[1]) / 2,
+    x=(x_range_plot[0] + x_range_plot[1]) / 2,
+    y=(y_range_plot[0] + y_range_plot[1]) / 2,
     xanchor="center",
     yanchor="middle",
     align="center",
@@ -329,12 +345,13 @@ fig.add_annotation(
     borderpad=1.5,
 )
 
-# Reader position at the true X/Y coordinates.
-pin_text_y = max(0.35, y_score - 0.62)
+# Reader position. The tooltip shows the true score; the plotted location uses
+# the inset visual coordinates so the pin never touches the outer boundary.
+pin_text_y = max(0.35, y_plot - 0.62)
 fig.add_trace(
     go.Scatter(
-        x=[x_score],
-        y=[y_score],
+        x=[x_plot],
+        y=[y_plot],
         mode="text",
         text=["📍"],
         textfont=dict(size=21, color="#C53030"),
@@ -346,7 +363,7 @@ fig.add_trace(
     )
 )
 fig.add_annotation(
-    x=x_score,
+    x=x_plot,
     y=pin_text_y,
     text="<b>Your position</b>",
     showarrow=False,
@@ -411,7 +428,7 @@ fig.update_layout(
     paper_bgcolor="white",
     plot_bgcolor="#FCFCFB",
     xaxis=dict(
-        range=[0, 10.5],
+        range=[0, 10.25],
         showgrid=False,
         zeroline=False,
         showticklabels=False,
@@ -419,7 +436,7 @@ fig.update_layout(
         fixedrange=True,
     ),
     yaxis=dict(
-        range=[0, 10.5],
+        range=[0, 10.25],
         showgrid=False,
         zeroline=False,
         showticklabels=False,
