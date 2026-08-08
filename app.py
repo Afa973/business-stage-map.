@@ -15,6 +15,7 @@ st.markdown(
     h1, h2, h3 {letter-spacing: -0.02em;}
     .hero-title {font-size: 2.05rem; font-weight: 800; line-height:1.15; margin: 0 0 0.35rem 0; padding-top:0.15rem;}
     .meta {font-size: 0.98rem; color:#374151; margin-bottom: 0.25rem;}
+    .meta-line {display:block; margin-bottom: 0.15rem;}
     .pill {display:inline-block; padding:0.3rem 0.65rem; border-radius:999px; background:#F3F4F6; margin-right:0.35rem; margin-bottom:0.25rem; font-weight:600; font-size:0.86rem;}
     .map-logic {font-size:0.76rem; line-height:1.42; color:#6B7280; margin:0.28rem 0 0.15rem 0; max-width:920px;}
     .map-logic b {color:#4B5563;}
@@ -271,8 +272,10 @@ disclaimer = (
 # -----------------------------
 st.markdown('<div class="hero-title">Your Business Stage Map</div>', unsafe_allow_html=True)
 st.markdown(
-    f'<div class="meta"><b>Self-identified stage:</b> {stage} &nbsp;&nbsp; '
-    f'<b>Your map position:</b> {map_stage}</div>',
+    f"<div class='meta'>"
+    f"<span class='meta-line'><b>You think you're at:</b> {stage}</span>"
+    f"<span class='meta-line'><b>Your answers show:</b> {map_stage}</span>"
+    f"</div>",
     unsafe_allow_html=True,
 )
 st.markdown(
