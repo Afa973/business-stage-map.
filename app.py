@@ -1,3 +1,4 @@
+import base64
 import io
 import re
 from html import escape, unescape
@@ -32,19 +33,73 @@ st.markdown(
         letter-spacing: -0.02em;
     }
 
+    /* -----------------------------------------------------
+       TITLE + SAVE BUTTON
+       These two items are in the SAME HTML row.
+       ----------------------------------------------------- */
+
+    .title-save-row {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 14px;
+        margin: 0 0 0.35rem 0;
+        padding: 0;
+        flex-wrap: wrap;
+    }
+
     .hero-title {
         font-size: 2.05rem;
         font-weight: 800;
         line-height: 1.15;
         margin: 0;
         padding: 0;
+        color: #1F2937;
+        letter-spacing: -0.02em;
+    }
+
+    .save-result-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        background: #FFFFFF;
+        color: #374151 !important;
+
+        border: 1px solid #D6DCE5;
+        border-radius: 999px;
+
+        padding: 7px 14px;
+
+        font-size: 0.78rem;
+        font-weight: 700;
+        line-height: 1;
+
+        text-decoration: none !important;
         white-space: nowrap;
+
+        box-shadow: 0 2px 7px rgba(17,24,39,0.06);
+
+        transition:
+            background-color 0.15s ease,
+            border-color 0.15s ease,
+            box-shadow 0.15s ease;
+    }
+
+    .save-result-btn:hover {
+        background: #F8FAFC;
+        color: #111827 !important;
+        border-color: #B8C0CC;
+
+        box-shadow: 0 4px 10px rgba(17,24,39,0.09);
+
+        text-decoration: none !important;
     }
 
     .meta {
         font-size: 0.98rem;
         color: #374151;
-        margin-top: 0.35rem;
+        margin-top: 0.15rem;
         margin-bottom: 0.25rem;
     }
 
@@ -164,47 +219,6 @@ st.markdown(
         margin-top: -0.2rem;
     }
 
-
-    /* =====================================================
-       SMALL WHITE SAVE BUTTON
-       No forced height / top positioning.
-       Streamlit handles the vertical centering.
-       ===================================================== */
-
-    div[data-testid="stDownloadButton"] button {
-        background: #FFFFFF !important;
-        color: #374151 !important;
-
-        border: 1px solid #D8DEE7 !important;
-        border-radius: 999px !important;
-
-        padding: 0.38rem 0.90rem !important;
-
-        font-size: 0.78rem !important;
-        font-weight: 700 !important;
-
-        white-space: nowrap !important;
-
-        box-shadow: 0 2px 7px rgba(17,24,39,0.06) !important;
-
-        transition:
-            background-color 0.15s ease,
-            border-color 0.15s ease,
-            box-shadow 0.15s ease;
-    }
-
-    div[data-testid="stDownloadButton"] button p {
-        white-space: nowrap !important;
-        margin: 0 !important;
-    }
-
-    div[data-testid="stDownloadButton"] button:hover {
-        background: #F8FAFC !important;
-        color: #111827 !important;
-        border-color: #BBC3CE !important;
-        box-shadow: 0 4px 10px rgba(17,24,39,0.09) !important;
-    }
-
     </style>
     """,
     unsafe_allow_html=True,
@@ -226,9 +240,6 @@ def q(name, default):
     return val
 
 
-# Tally may send the full visible option text, for example:
-# "Service — your time or skill" or "Growing — scaling up".
-# The app only needs the short category before the descriptive dash.
 def short_answer(value):
     text = str(value).replace("+", " ").strip()
 
@@ -257,9 +268,11 @@ def split_multi(value):
     """Turn a Tally multi-select value into a clean display list."""
 
     if isinstance(value, list):
+
         raw_items = value
 
     else:
+
         text = str(value or "").strip()
 
         if not text:
@@ -269,6 +282,7 @@ def split_multi(value):
             text = text[1:-1].strip()
 
         for sep in ("|", ";", "\n"):
+
             if sep in text:
                 raw_items = text.split(sep)
                 break
@@ -312,7 +326,6 @@ except Exception:
     y_score = 4.5
 
 
-# Defensive handling in case score is passed on a 0–100 scale.
 if x_score > 10:
     x_score = x_score / 10
 
@@ -335,9 +348,7 @@ y_score = max(
 # VISUAL POSITION MAPPING
 # =========================================================
 def display_coord(score):
-    # 0 -> 1
-    # 5 -> 5
-    # 10 -> 9
+
     return 1.0 + (
         float(score) * 0.8
     )
@@ -408,7 +419,6 @@ benchmarks = {
 }
 
 
-# Fixing is treated as a stabilization state.
 benchmark_stage = (
     "Growing"
     if stage == "Fixing"
@@ -539,9 +549,13 @@ systems_display = escape(
 
 
 stage_order = {
+
     "Starting": 0,
+
     "Growing": 1,
+
     "Established": 2,
+
 }
 
 
@@ -549,66 +563,76 @@ if stage == map_stage:
 
     conclusion = (
         f"You chose <b>{stage}</b>, and your answers point "
-        f"to the same place on the map. "
-        f"Your customer reach and repeatable systems are broadly "
-        f"in line with a <b>{stage}</b> business."
+        f"to the same place on the map. Your customer reach "
+        f"and repeatable systems are broadly in line with a "
+        f"<b>{stage}</b> business."
     )
 
 
 elif map_stage == "Fixing":
 
     conclusion = (
-        f"You chose <b>{stage}</b>. Customers can find and buy "
-        f"from you in several ways, but your repeatable systems "
-        f"are not keeping pace. That moves you toward <b>Fixing</b>, "
-        f"where growth can start putting strain on the business."
+        f"You chose <b>{stage}</b>. Customers can find and "
+        f"buy from you in several ways, but your repeatable "
+        f"systems are not keeping pace. That moves you toward "
+        f"<b>Fixing</b>, where growth can start putting strain "
+        f"on the business."
     )
 
 
 elif stage == "Fixing":
 
     conclusion = (
-        f"You chose <b>Fixing</b>, but your current answers place "
-        f"you closer to <b>{map_stage}</b>. Your customer reach and "
-        f"repeatable systems look stronger than a typical fixing "
-        f"position on this map."
+        f"You chose <b>Fixing</b>, but your current answers "
+        f"place you closer to <b>{map_stage}</b>. Your customer "
+        f"reach and repeatable systems look stronger than a "
+        f"typical fixing position on this map."
     )
 
 
 elif (
     stage in stage_order
-    and map_stage in stage_order
-    and stage_order[map_stage] > stage_order[stage]
+    and
+    map_stage in stage_order
+    and
+    stage_order[map_stage]
+    >
+    stage_order[stage]
 ):
 
     conclusion = (
-        f"You chose <b>{stage}</b>. Your answers show wider customer "
-        f"reach and more repeatable systems than that stage usually "
-        f"suggests, so you sit closer to <b>{map_stage}</b> on this map."
+        f"You chose <b>{stage}</b>. Your answers show wider "
+        f"customer reach and more repeatable systems than that "
+        f"stage usually suggests, so you sit closer to "
+        f"<b>{map_stage}</b> on this map."
     )
 
 
 elif (
     stage in stage_order
-    and map_stage in stage_order
-    and stage_order[map_stage] < stage_order[stage]
+    and
+    map_stage in stage_order
+    and
+    stage_order[map_stage]
+    <
+    stage_order[stage]
 ):
 
     conclusion = (
-        f"You chose <b>{stage}</b>. Your answers show fewer customer "
-        f"routes and less-developed repeatable systems than that stage "
-        f"usually needs, so you sit closer to <b>{map_stage}</b>. "
-        f"That gap is worth looking at."
+        f"You chose <b>{stage}</b>. Your answers show fewer "
+        f"customer routes and less-developed repeatable systems "
+        f"than that stage usually needs, so you sit closer to "
+        f"<b>{map_stage}</b>. That gap is worth looking at."
     )
 
 
 else:
 
     conclusion = (
-        f"You chose <b>{stage}</b>, while your answers place you "
-        f"closer to <b>{map_stage}</b> on this map. The difference "
-        f"is a useful prompt to look more closely at your customer "
-        f"reach and systems."
+        f"You chose <b>{stage}</b>, while your answers place "
+        f"you closer to <b>{map_stage}</b> on this map. "
+        f"The difference is a useful prompt to look more closely "
+        f"at your customer reach and systems."
     )
 
 
@@ -619,7 +643,7 @@ disclaimer = (
 
 
 # =========================================================
-# PNG HELPER FUNCTIONS
+# PNG HELPERS
 # =========================================================
 def strip_html_tags(text):
 
@@ -632,24 +656,37 @@ def strip_html_tags(text):
     ).strip()
 
 
-def load_font(size=18, bold=False):
+def load_font(
+    size=18,
+    bold=False
+):
 
     if bold:
 
         candidates = [
+
             "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+
             "/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf",
+
             "/Library/Fonts/Arial Bold.ttf",
+
             "C:/Windows/Fonts/arialbd.ttf",
+
         ]
 
     else:
 
         candidates = [
+
             "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+
             "/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf",
+
             "/Library/Fonts/Arial.ttf",
+
             "C:/Windows/Fonts/arial.ttf",
+
         ]
 
 
@@ -670,7 +707,11 @@ def load_font(size=18, bold=False):
     return ImageFont.load_default()
 
 
-def text_size(draw, text, font):
+def text_size(
+    draw,
+    text,
+    font
+):
 
     bbox = draw.textbbox(
         (0, 0),
@@ -691,27 +732,38 @@ def wrap_text_to_width(
     max_width
 ):
 
-    words = str(text).split()
+    words = str(
+        text
+    ).split()
+
 
     if not words:
+
         return [""]
 
+
     lines = []
+
     current = words[0]
+
 
     for word in words[1:]:
 
         trial = (
             current
-            + " "
-            + word
+            +
+            " "
+            +
+            word
         )
+
 
         width, _ = text_size(
             draw,
             trial,
             font
         )
+
 
         if width <= max_width:
 
@@ -725,9 +777,11 @@ def wrap_text_to_width(
 
             current = word
 
+
     lines.append(
         current
     )
+
 
     return lines
 
@@ -746,7 +800,10 @@ def draw_wrapped_text(
 
     lines = []
 
-    for paragraph in str(text).split("\n"):
+
+    for paragraph in str(
+        text
+    ).split("\n"):
 
         wrapped = wrap_text_to_width(
             draw,
@@ -762,9 +819,14 @@ def draw_wrapped_text(
         )
 
 
-    if hasattr(font, "getmetrics"):
+    if hasattr(
+        font,
+        "getmetrics"
+    ):
 
-        ascent, descent = font.getmetrics()
+        ascent, descent = (
+            font.getmetrics()
+        )
 
     else:
 
@@ -813,7 +875,9 @@ def draw_pill(
 ):
 
     pad_x = 16
+
     pad_y = 8
+
 
     tw, th = text_size(
         draw,
@@ -821,11 +885,13 @@ def draw_pill(
         font
     )
 
+
     width = (
         tw
         +
         (pad_x * 2)
     )
+
 
     height = (
         th
@@ -834,6 +900,7 @@ def draw_pill(
         -
         2
     )
+
 
     draw.rounded_rectangle(
         (
@@ -848,6 +915,7 @@ def draw_pill(
         width=1
     )
 
+
     draw.text(
         (
             x + pad_x,
@@ -857,6 +925,7 @@ def draw_pill(
         font=font,
         fill=fg
     )
+
 
     return (
         x
@@ -879,13 +948,11 @@ def build_result_png(
     conclusion_html
 ):
 
-    # Export Plotly chart.
-    # The disclaimer is already inside the figure itself.
     chart_bytes = pio.to_image(
         fig,
         format="png",
         width=1600,
-        height=980,
+        height=1040,
         scale=2
     )
 
@@ -900,7 +967,8 @@ def build_result_png(
 
 
     canvas_w = 1900
-    canvas_h = 1350
+
+    canvas_h = 1380
 
 
     background = Image.new(
@@ -918,7 +986,6 @@ def build_result_png(
     )
 
 
-    # Fonts
     font_title = load_font(
         44,
         bold=True
@@ -968,16 +1035,20 @@ def build_result_png(
 
 
     left_x = 70
+
     left_w = 1080
 
+
     right_x = 1180
+
     right_w = 650
+
 
     top_y = 60
 
 
     # -----------------------------
-    # PNG title
+    # Title
     # -----------------------------
     draw.text(
         (
@@ -998,7 +1069,7 @@ def build_result_png(
 
 
     # -----------------------------
-    # Self-selected stage
+    # Stage
     # -----------------------------
     draw.text(
         (
@@ -1037,7 +1108,7 @@ def build_result_png(
 
 
     # -----------------------------
-    # Calculated stage
+    # Result
     # -----------------------------
     draw.text(
         (
@@ -1161,7 +1232,7 @@ def build_result_png(
 
 
     # -----------------------------
-    # Chart
+    # Chart including disclaimer
     # -----------------------------
     chart_copy = chart_img.copy()
 
@@ -1169,7 +1240,7 @@ def build_result_png(
     chart_copy.thumbnail(
         (
             left_w,
-            800
+            820
         )
     )
 
@@ -1185,11 +1256,14 @@ def build_result_png(
 
 
     # -----------------------------
-    # Right summary card
+    # Summary card
     # -----------------------------
     card_x = right_x
+
     card_y = 145
+
     card_w = right_w
+
     card_h = 830
 
 
@@ -1245,7 +1319,7 @@ def build_result_png(
 
 
     # -----------------------------
-    # How customers find
+    # Find
     # -----------------------------
     draw.text(
         (
@@ -1306,7 +1380,7 @@ def build_result_png(
 
 
     # -----------------------------
-    # How customers buy
+    # Buy
     # -----------------------------
     draw.text(
         (
@@ -1367,7 +1441,7 @@ def build_result_png(
 
 
     # -----------------------------
-    # Repeatable systems
+    # Systems
     # -----------------------------
     draw.text(
         (
@@ -1425,7 +1499,7 @@ def build_result_png(
 
 
     # -----------------------------
-    # What this suggests
+    # Suggestion
     # -----------------------------
     draw.text(
         (
@@ -1613,7 +1687,7 @@ fig.add_shape(
 
 
 # -----------------------------
-# Benchmark box
+# Benchmark
 # -----------------------------
 benchmark_colors = {
 
@@ -1860,9 +1934,7 @@ fig.add_trace(
 
 
 fig.add_annotation(
-
     x=x_plot,
-
     y=pin_text_y,
 
     text=(
@@ -1955,13 +2027,13 @@ add_stage_label(
 
 
 # -----------------------------
-# Axis titles
+# Axis labels
 # -----------------------------
 fig.add_annotation(
 
     x=0.5,
 
-    y=-0.115,
+    y=-0.12,
 
     xref="paper",
 
@@ -2018,13 +2090,15 @@ fig.add_annotation(
 
 
 # =========================================================
-# DISCLAIMER — NOW PART OF THE PLOTLY FIGURE
+# DISCLAIMER
+# Now INSIDE the figure so it cannot be clipped by Streamlit.
+# Larger font, close to the original size.
 # =========================================================
 fig.add_annotation(
 
     x=0.5,
 
-    y=-0.245,
+    y=-0.285,
 
     xref="paper",
 
@@ -2033,7 +2107,9 @@ fig.add_annotation(
     text=(
         "<i>"
         "This is a simple visual guide to help you think about your business, "
-        "not a final assessment. Other factors not covered here may change the picture."
+        "not a final assessment."
+        "<br>"
+        "Other factors not covered here may change the picture."
         "</i>"
     ),
 
@@ -2046,24 +2122,24 @@ fig.add_annotation(
     align="center",
 
     font=dict(
-        size=9.5,
+        size=11.5,
         color="#6B7280"
     )
 )
 
 
 # -----------------------------
-# Layout
+# Plot layout
 # -----------------------------
 fig.update_layout(
 
-    height=390,
+    height=410,
 
     margin=dict(
         l=78,
         r=12,
         t=12,
-        b=96
+        b=115
     ),
 
     paper_bgcolor="white",
@@ -2107,7 +2183,9 @@ fig.update_layout(
     ),
 
     hoverlabel=dict(
+
         bgcolor="white",
+
         font_size=12
     )
 )
@@ -2151,57 +2229,56 @@ except Exception as error:
 
 
 # =========================================================
-# HEADING + SAVE BUTTON
+# TITLE + SAVE LINK
+#
+# This is intentionally NOT st.download_button.
+# Both elements live in ONE HTML flex row, so the button
+# cannot float elsewhere on the page.
 # =========================================================
-#
-# vertical_alignment="center" is doing the positioning.
-# There is no manual button height or top offset.
-#
-# Third blank column keeps the button close to the heading.
-#
-title_col, save_col, blank_col = st.columns(
-    [
-        3.75,
-        1.40,
-        4.85
-    ],
-    gap="small",
-    vertical_alignment="center"
+
+if result_png_bytes is not None:
+
+    png_base64 = base64.b64encode(
+        result_png_bytes
+    ).decode("utf-8")
+
+
+    title_html = f"""
+<div class="title-save-row">
+
+    <div class="hero-title">
+        Your Business Stage Map
+    </div>
+
+    <a
+        class="save-result-btn"
+        href="data:image/png;base64,{png_base64}"
+        download="my-business-stage-map.png"
+    >
+        ↓ Save my result
+    </a>
+
+</div>
+"""
+
+
+else:
+
+    title_html = """
+<div class="title-save-row">
+
+    <div class="hero-title">
+        Your Business Stage Map
+    </div>
+
+</div>
+"""
+
+
+st.markdown(
+    title_html,
+    unsafe_allow_html=True
 )
-
-
-with title_col:
-
-    st.markdown(
-        (
-            '<div class="hero-title">'
-            'Your Business Stage Map'
-            '</div>'
-        ),
-        unsafe_allow_html=True
-    )
-
-
-with save_col:
-
-    if result_png_bytes is not None:
-
-        st.download_button(
-
-            label="↓ Save my result",
-
-            data=result_png_bytes,
-
-            file_name="my-business-stage-map.png",
-
-            mime="image/png",
-
-            type="secondary",
-
-            use_container_width=False,
-
-            key="save_result_top"
-        )
 
 
 # =========================================================
