@@ -34,7 +34,7 @@ st.markdown(
     
 .disclaimer-under-chart {
     margin-top: -28px;
-    margin-left: 72px;
+    margin-left: 78px;
     margin-right: 12px;
     padding: 0;
     font-size: 0.74rem;
@@ -448,10 +448,10 @@ fig.add_annotation(
     ),
     showarrow=False,
     align="center",
-    font=dict(size=11.5, color="#64748B"),
+    font=dict(size=11.0, color="#64748B"),
 )
 fig.add_annotation(
-    x=-0.045,
+    x=-0.070,
     y=0.5,
     xref="paper",
     yref="paper",
@@ -467,7 +467,7 @@ fig.add_annotation(
 
 fig.update_layout(
     height=390,
-    margin=dict(l=72, r=12, t=12, b=62),
+    margin=dict(l=78, r=12, t=12, b=62),
     paper_bgcolor="white",
     plot_bgcolor="#FCFCFB",
     xaxis=dict(
