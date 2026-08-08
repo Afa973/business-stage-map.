@@ -1,9 +1,3 @@
-import shutil
-
-st.write("Chromium:", shutil.which("chromium"))
-st.write("Chromium browser:", shutil.which("chromium-browser"))
-st.write("Google Chrome:", shutil.which("google-chrome"))
-
 import io
 import re
 from html import escape, unescape
@@ -13,6 +7,11 @@ import streamlit as st
 import plotly.graph_objects as go
 import plotly.io as pio
 from PIL import Image, ImageDraw, ImageFont
+import shutil
+
+st.write("Chromium:", shutil.which("chromium"))
+st.write("Chromium browser:", shutil.which("chromium-browser"))
+st.write("Google Chrome:", shutil.which("google-chrome"))
 
 st.set_page_config(page_title="Business Stage Map", page_icon="📍", layout="wide")
 
