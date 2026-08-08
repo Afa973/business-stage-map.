@@ -16,13 +16,18 @@ st.markdown(
     .hero-title {font-size: 2.05rem; font-weight: 800; line-height:1.15; margin: 0 0 0.35rem 0; padding-top:0.15rem;}
     .meta {font-size: 0.98rem; color:#374151; margin-bottom: 0.25rem;}
     .pill {display:inline-block; padding:0.3rem 0.65rem; border-radius:999px; background:#F3F4F6; margin-right:0.35rem; margin-bottom:0.25rem; font-weight:600; font-size:0.86rem;}
-    .summary-card {padding:0.9rem 0.95rem; border-radius:14px; border:1px solid #E5E7EB; background:#FFFFFF; box-shadow:0 6px 18px rgba(17,24,39,0.045); margin-top:0.2rem;}
-    .summary-kicker {font-size:0.70rem; text-transform:uppercase; letter-spacing:0.08em; color:#6B7280; font-weight:800; margin-bottom:0.55rem;}
-    .dash-item {padding:0.58rem 0.68rem; border-radius:10px; background:#F8FAFC; border:1px solid #EEF2F7; margin-bottom:0.48rem;}
-    .dash-label {font-size:0.70rem; text-transform:uppercase; letter-spacing:0.055em; color:#6B7280; font-weight:800; margin-bottom:0.18rem;}
-    .dash-value {font-size:0.88rem; line-height:1.34; color:#1F2937; font-weight:650;}
-    .result-line {font-size:0.92rem; line-height:1.43; color:#1F2937; margin:0.68rem 0 0 0;}
-    .summary-disclaimer {font-size:0.72rem; line-height:1.38; color:#6B7280; font-style:italic; margin:0.56rem 0 0 0;}
+    .summary-card {padding:1.0rem 1.05rem 0.95rem 1.05rem; border-radius:15px; border:1px solid #E5E7EB; background:#FFFFFF; box-shadow:0 8px 24px rgba(17,24,39,0.05); margin-top:-1.75rem;}
+    .summary-kicker {font-size:0.70rem; text-transform:uppercase; letter-spacing:0.09em; color:#6B7280; font-weight:800; margin-bottom:0.45rem;}
+    .dash-item {padding:0.72rem 0 0.74rem 0; border-bottom:1px solid #E9EDF2;}
+    .dash-item:last-of-type {border-bottom:none;}
+    .dash-label {font-size:0.68rem; text-transform:uppercase; letter-spacing:0.06em; color:#6B7280; font-weight:800; margin-bottom:0.34rem;}
+    .dash-value {font-size:0.88rem; line-height:1.36; color:#1F2937; font-weight:650;}
+    .answer-chip {display:inline-block; padding:0.22rem 0.48rem; margin:0 0.22rem 0.22rem 0; border-radius:999px; background:#F3F4F6; border:1px solid #E5E7EB; color:#263244; font-size:0.76rem; line-height:1.25; font-weight:650;}
+    .systems-value {font-size:1.0rem; color:#111827; font-weight:750;}
+    .result-wrap {border-top:1px solid #E5E7EB; margin-top:0.48rem; padding-top:0.72rem;}
+    .result-label {font-size:0.68rem; text-transform:uppercase; letter-spacing:0.06em; color:#6B7280; font-weight:800; margin-bottom:0.28rem;}
+    .result-line {font-size:0.88rem; line-height:1.43; color:#1F2937; margin:0;}
+    .summary-disclaimer {font-size:0.70rem; line-height:1.42; color:#7A818D; font-style:italic; margin:0.72rem 0 0 0; padding-top:0.66rem; border-top:1px solid #F0F2F5;}
     div[data-testid="stPlotlyChart"] {margin-top:-0.2rem;}
     </style>
     """,
@@ -194,8 +199,17 @@ def answer_text(items, fallback):
     return " · ".join(items)
 
 
-find_display = escape(answer_text(find_answers, "Answer not received"))
-buy_display = escape(answer_text(buy_answers, "Answer not received"))
+def answer_chips(items, fallback):
+    if not items:
+        return f'<span class="answer-chip">{escape(fallback)}</span>'
+    return "".join(
+        f'<span class="answer-chip">{escape(str(item))}</span>'
+        for item in items
+    )
+
+
+find_display = answer_chips(find_answers, "Answer not received")
+buy_display = answer_chips(buy_answers, "Answer not received")
 systems_display = escape(systems_answer.strip("[]") or "Answer not received")
 
 if stage == map_stage:
@@ -424,9 +438,12 @@ with right:
 </div>
 <div class="dash-item">
 <div class="dash-label">Repeatable systems</div>
-<div class="dash-value">{systems_display}</div>
+<div class="systems-value">{systems_display}</div>
 </div>
+<div class="result-wrap">
+<div class="result-label">What this suggests</div>
 <p class="result-line">{conclusion}</p>
+</div>
 <p class="summary-disclaimer">{disclaimer}</p>
 </div>"""
     st.markdown(dashboard_html, unsafe_allow_html=True)
