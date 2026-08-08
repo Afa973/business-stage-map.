@@ -1,7 +1,12 @@
+import io
+import re
+from html import escape, unescape
+from urllib.parse import quote
+
 import streamlit as st
 import plotly.graph_objects as go
-from urllib.parse import quote
-from html import escape
+import plotly.io as pio
+from PIL import Image, ImageDraw, ImageFont
 
 st.set_page_config(page_title="Business Stage Map", page_icon="📍", layout="wide")
 
@@ -32,20 +37,24 @@ st.markdown(
     .result-line {font-size:0.82rem; line-height:1.38; color:#1F2937; margin:0;}
     .summary-disclaimer {font-size:0.70rem; line-height:1.42; color:#7A818D; font-style:italic; margin:0.72rem 0 0 0; padding-top:0.66rem; border-top:1px solid #F0F2F5;}
     div[data-testid="stPlotlyChart"] {margin-top:-0.2rem;}
-    
-.disclaimer-under-chart {
-    margin-top: -28px;
-    margin-left: 78px;
-    margin-right: 12px;
-    padding: 0;
-    font-size: 0.74rem;
-    line-height: 1.36;
-    color: #6b7280;
-    font-style: italic;
-    box-sizing: border-box;
-}
 
-</style>
+    .disclaimer-under-chart {
+        margin-top: -28px;
+        margin-left: 78px;
+        margin-right: 12px;
+        padding: 0;
+        font-size: 0.74rem;
+        line-height: 1.36;
+        color: #6b7280;
+        font-style: italic;
+        box-sizing: border-box;
+    }
+
+    .save-result-wrap {
+        margin-top: 0.8rem;
+        margin-bottom: 0.3rem;
+    }
+    </style>
     """,
     unsafe_allow_html=True,
 )
@@ -88,11 +97,8 @@ def split_multi(value):
         text = str(value or "").strip()
         if not text:
             return []
-        # Be forgiving if literal square brackets were accidentally added
-        # around a Tally @mention in the redirect URL.
         if text.startswith("[") and text.endswith("]"):
             text = text[1:-1].strip()
-        # Tally/browser encodings can vary; support common separators.
         for sep in ("|", ";", "\n"):
             if sep in text:
                 raw_items = text.split(sep)
@@ -128,11 +134,10 @@ y_score = max(0, min(10, y_score))
 # -----------------------------
 # Visual position mapping
 # -----------------------------
-# Keep the assessment itself on the true 0–10 scale, but inset plotted
-# positions so a minimum or maximum result never sits on a chart boundary.
-# This mapping preserves the midpoint exactly: 0 -> 1, 5 -> 5, 10 -> 9.
 def display_coord(score):
+    # 0 -> 1, 5 -> 5, 10 -> 9
     return 1.0 + (float(score) * 0.8)
+
 
 x_plot = display_coord(x_score)
 y_plot = display_coord(y_score)
@@ -158,14 +163,11 @@ benchmarks = {
     ("Hybrid", "Established"): ((7.0, 10.0), (7.0, 10.0)),
 }
 
-# Fixing is treated as a stabilization state, so the neutral comparison
-# remains the Growing benchmark rather than inventing a universal Fixing target.
 benchmark_stage = "Growing" if stage == "Fixing" else stage
 x_range, y_range = benchmarks.get(
     (business_type, benchmark_stage), ((4.5, 7.5), (4.5, 7.5))
 )
 
-# Transform the benchmark box using the same visual mapping as the reader pin.
 x_range_plot = (display_coord(x_range[0]), display_coord(x_range[1]))
 y_range_plot = (display_coord(y_range[0]), display_coord(y_range[1]))
 
@@ -187,7 +189,6 @@ y_label = level(y_score, "y")
 
 cut = 5.0
 
-# The lifecycle stage is now read directly from the same X/Y matrix.
 if x_score < cut and y_score < cut:
     map_stage = "Starting"
     map_descriptor = "Building the base"
@@ -205,16 +206,6 @@ else:
 # -----------------------------
 # Compact dashboard interpretation
 # -----------------------------
-# The numerical scores remain internal. The reader sees the actual answers
-# that produced the map position, which is easier to understand and avoids
-# implying false precision.
-
-def answer_text(items, fallback):
-    if not items:
-        return fallback
-    return " · ".join(items)
-
-
 def answer_chips(items, fallback):
     if not items:
         return f'<span class="answer-chip">{escape(fallback)}</span>'
@@ -268,6 +259,258 @@ disclaimer = (
 )
 
 # -----------------------------
+# Helper functions for PNG export
+# -----------------------------
+def strip_html_tags(text: str) -> str:
+    return unescape(re.sub(r"<[^>]+>", "", text or "")).strip()
+
+
+def load_font(size=18, bold=False):
+    candidates = []
+    if bold:
+        candidates = [
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+            "/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf",
+            "/Library/Fonts/Arial Bold.ttf",
+            "C:/Windows/Fonts/arialbd.ttf",
+        ]
+    else:
+        candidates = [
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+            "/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf",
+            "/Library/Fonts/Arial.ttf",
+            "C:/Windows/Fonts/arial.ttf",
+        ]
+    for path in candidates:
+        try:
+            return ImageFont.truetype(path, size=size)
+        except Exception:
+            pass
+    return ImageFont.load_default()
+
+
+def text_size(draw, text, font):
+    bbox = draw.textbbox((0, 0), text, font=font)
+    return bbox[2] - bbox[0], bbox[3] - bbox[1]
+
+
+def wrap_text_to_width(draw, text, font, max_width):
+    words = str(text).split()
+    if not words:
+        return [""]
+    lines = []
+    current = words[0]
+    for word in words[1:]:
+        trial = current + " " + word
+        w, _ = text_size(draw, trial, font)
+        if w <= max_width:
+            current = trial
+        else:
+            lines.append(current)
+            current = word
+    lines.append(current)
+    return lines
+
+
+def draw_wrapped_text(draw, text, xy, font, fill, max_width, line_gap=6):
+    x, y = xy
+    lines = []
+    for para in str(text).split("\n"):
+        wrapped = wrap_text_to_width(draw, para, font, max_width)
+        lines.extend(wrapped if wrapped else [""])
+    ascent, descent = font.getmetrics() if hasattr(font, "getmetrics") else (font.size, 0)
+    line_height = ascent + descent + line_gap
+    for line in lines:
+        draw.text((x, y), line, font=font, fill=fill)
+        y += line_height
+    return y
+
+
+def draw_pill(draw, x, y, text, font, bg="#F3F4F6", fg="#374151", outline="#E5E7EB"):
+    pad_x = 16
+    pad_y = 8
+    tw, th = text_size(draw, text, font)
+    w = tw + (pad_x * 2)
+    h = th + (pad_y * 2) - 2
+    draw.rounded_rectangle((x, y, x + w, y + h), radius=18, fill=bg, outline=outline, width=1)
+    draw.text((x + pad_x, y + pad_y - 2), text, font=font, fill=fg)
+    return x + w + 10
+
+
+def build_result_png(
+    fig,
+    stage,
+    map_stage,
+    business_type,
+    concern,
+    find_answers,
+    buy_answers,
+    systems_answer,
+    conclusion_html,
+    disclaimer_text,
+):
+    chart_bytes = pio.to_image(fig, format="png", width=1600, height=980, scale=2)
+    chart_img = Image.open(io.BytesIO(chart_bytes)).convert("RGBA")
+
+    canvas_w = 1900
+    canvas_h = 1350
+    bg = Image.new("RGB", (canvas_w, canvas_h), "white")
+    draw = ImageDraw.Draw(bg)
+
+    # Fonts
+    font_title = load_font(44, bold=True)
+    font_meta_bold = load_font(22, bold=True)
+    font_meta = load_font(22, bold=False)
+    font_pill = load_font(18, bold=True)
+    font_logic_bold = load_font(16, bold=True)
+    font_logic = load_font(16, bold=False)
+
+    font_card_kicker = load_font(14, bold=True)
+    font_card_label = load_font(14, bold=True)
+    font_card_value = load_font(20, bold=True)
+    font_card_body = load_font(18, bold=False)
+    font_small = load_font(15, bold=False)
+    font_small_bold = load_font(15, bold=True)
+
+    left_x = 70
+    left_w = 1080
+    right_x = 1180
+    right_w = 650
+    top_y = 60
+
+    # Title
+    draw.text((left_x, top_y), "Your Business Stage Map", font=font_title, fill="#111827")
+    y = top_y + 68
+
+    # Meta
+    draw.text((left_x, y), "You think you're at:", font=font_meta_bold, fill="#374151")
+    w1, _ = text_size(draw, "You think you're at:", font_meta_bold)
+    draw.text((left_x + w1 + 10, y), stage, font=font_meta, fill="#374151")
+    y += 34
+
+    draw.text((left_x, y), "Your answers show:", font=font_meta_bold, fill="#374151")
+    w2, _ = text_size(draw, "Your answers show:", font_meta_bold)
+    draw.text((left_x + w2 + 10, y), map_stage, font=font_meta, fill="#374151")
+    y += 46
+
+    # Pills
+    px = left_x
+    px = draw_pill(draw, px, y, business_type, font_pill)
+    px = draw_pill(draw, px, y, f"Concern: {concern}", font_pill)
+    y += 52
+
+    # Logic
+    logic_prefix = "How this map works:"
+    logic_rest = (
+        " Your position is based on how customers find and buy from you "
+        "(questions 5–6) and how repeatable your systems are (question 7). "
+        "The benchmark is based on the stage you selected (question 3)."
+    )
+    draw.text((left_x, y), logic_prefix, font=font_logic_bold, fill="#4B5563")
+    prefix_w, _ = text_size(draw, logic_prefix, font_logic_bold)
+    draw_wrapped_text(
+        draw,
+        logic_rest.strip(),
+        (left_x + prefix_w + 8, y),
+        font_logic,
+        "#6B7280",
+        left_w - prefix_w - 8,
+        line_gap=4,
+    )
+    y += 42
+
+    # Chart
+    chart_max_w = left_w
+    chart_max_h = 760
+    chart_copy = chart_img.copy()
+    chart_copy.thumbnail((chart_max_w, chart_max_h))
+    bg.paste(chart_copy, (left_x, y), chart_copy)
+    chart_bottom = y + chart_copy.size[1]
+
+    # Disclaimer under chart
+    draw_wrapped_text(
+        draw,
+        disclaimer_text,
+        (left_x + 78, chart_bottom - 8),
+        font_small,
+        "#6B7280",
+        left_w - 90,
+        line_gap=4,
+    )
+
+    # Summary card
+    card_x = right_x
+    card_y = 145
+    card_w = right_w
+    card_h = 830
+
+    draw.rounded_rectangle(
+        (card_x, card_y, card_x + card_w, card_y + card_h),
+        radius=24,
+        fill="white",
+        outline="#E5E7EB",
+        width=2,
+    )
+
+    inner_x = card_x + 28
+    inner_y = card_y + 26
+    inner_w = card_w - 56
+
+    draw.text((inner_x, inner_y), "YOUR ANSWERS AT A GLANCE", font=font_card_kicker, fill="#6B7280")
+    inner_y += 40
+
+    # Section 1
+    draw.text((inner_x, inner_y), "HOW CUSTOMERS FIND YOU", font=font_card_label, fill="#6B7280")
+    inner_y += 24
+    find_text = " · ".join(find_answers) if find_answers else "Answer not received"
+    inner_y = draw_wrapped_text(draw, find_text, (inner_x, inner_y), font_card_body, "#1F2937", inner_w, line_gap=5)
+    inner_y += 14
+    draw.line((inner_x, inner_y, inner_x + inner_w, inner_y), fill="#E9EDF2", width=1)
+    inner_y += 18
+
+    # Section 2
+    draw.text((inner_x, inner_y), "HOW CUSTOMERS BUY", font=font_card_label, fill="#6B7280")
+    inner_y += 24
+    buy_text = " · ".join(buy_answers) if buy_answers else "Answer not received"
+    inner_y = draw_wrapped_text(draw, buy_text, (inner_x, inner_y), font_card_body, "#1F2937", inner_w, line_gap=5)
+    inner_y += 14
+    draw.line((inner_x, inner_y, inner_x + inner_w, inner_y), fill="#E9EDF2", width=1)
+    inner_y += 18
+
+    # Section 3
+    draw.text((inner_x, inner_y), "REPEATABLE SYSTEMS", font=font_card_label, fill="#6B7280")
+    inner_y += 24
+    systems_text = systems_answer.strip("[]") or "Answer not received"
+    inner_y = draw_wrapped_text(draw, systems_text, (inner_x, inner_y), font_card_value, "#111827", inner_w, line_gap=5)
+    inner_y += 14
+    draw.line((inner_x, inner_y, inner_x + inner_w, inner_y), fill="#E9EDF2", width=1)
+    inner_y += 18
+
+    # Section 4
+    draw.text((inner_x, inner_y), "WHAT THIS SUGGESTS", font=font_card_label, fill="#6B7280")
+    inner_y += 24
+    conclusion_plain = strip_html_tags(conclusion_html)
+    inner_y = draw_wrapped_text(draw, conclusion_plain, (inner_x, inner_y), font_card_body, "#1F2937", inner_w, line_gap=6)
+
+    # Footer note
+    footer_y = card_y + card_h + 18
+    draw_wrapped_text(
+        draw,
+        "Saved from your quiz results page.",
+        (card_x + 4, footer_y),
+        font_small,
+        "#6B7280",
+        card_w - 8,
+        line_gap=4,
+    )
+
+    out = io.BytesIO()
+    bg.save(out, format="PNG")
+    out.seek(0)
+    return out.getvalue()
+
+
+# -----------------------------
 # Header
 # -----------------------------
 st.markdown('<div class="hero-title">Your Business Stage Map</div>', unsafe_allow_html=True)
@@ -289,14 +532,11 @@ st.markdown(
 # -----------------------------
 fig = go.Figure()
 
-# Stage backgrounds. These are deliberately light so the result marker
-# and the benchmark zone remain the strongest visual signals.
 stage_regions = [
-    # x0, x1, y0, y1, fill
-    (0, cut, 0, cut, "rgba(226, 238, 223, 0.52)"),   # Starting — green
-    (0, cut, cut, 10, "rgba(246, 239, 201, 0.50)"),  # Growing — yellow
-    (cut, 10, cut, 10, "rgba(232, 225, 242, 0.52)"), # Established — purple
-    (cut, 10, 0, cut, "rgba(242, 226, 211, 0.50)"),  # Fixing — orange
+    (0, cut, 0, cut, "rgba(226, 238, 223, 0.52)"),   # Starting
+    (0, cut, cut, 10, "rgba(246, 239, 201, 0.50)"),  # Growing
+    (cut, 10, cut, 10, "rgba(232, 225, 242, 0.52)"), # Established
+    (cut, 10, 0, cut, "rgba(242, 226, 211, 0.50)"),  # Fixing
 ]
 
 for x0, x1, y0, y1, fill in stage_regions:
@@ -307,7 +547,6 @@ for x0, x1, y0, y1, fill in stage_regions:
         layer="below",
     )
 
-# True X/Y axes.
 base_line = "rgba(51,65,85,0.70)"
 fig.add_shape(
     type="line", x0=0, x1=10.15, y0=0, y1=0,
@@ -318,7 +557,6 @@ fig.add_shape(
     line=dict(color=base_line, width=1.1)
 )
 
-# Quadrant dividers.
 quad_line = "rgba(100,116,139,0.42)"
 fig.add_shape(
     type="line", x0=cut, x1=cut, y0=0, y1=10,
@@ -329,8 +567,6 @@ fig.add_shape(
     line=dict(color=quad_line, width=0.9)
 )
 
-# Expected benchmark zone based on business type + self-identified stage.
-# The border uses the selected stage's book color so the benchmark is easier to spot.
 benchmark_colors = {
     "Starting": {"line": "#2F343B", "fill": "rgba(120,168,120,0.12)"},
     "Growing": {"line": "#2F343B", "fill": "rgba(185,154,54,0.12)"},
@@ -365,8 +601,6 @@ fig.add_annotation(
     borderpad=2.0,
 )
 
-# Show the distance between the reader's position and the benchmark when the
-# position falls outside the expected range.
 inside_benchmark = (
     x_range_plot[0] <= x_plot <= x_range_plot[1]
     and y_range_plot[0] <= y_plot <= y_range_plot[1]
@@ -391,8 +625,6 @@ if not inside_benchmark:
         borderpad=1.5,
     )
 
-# Reader position. The tooltip shows the true score; the plotted location uses
-# the inset visual coordinates so the pin never touches the outer boundary.
 pin_text_y = max(0.35, y_plot - 0.62)
 fig.add_trace(
     go.Scatter(
@@ -416,8 +648,6 @@ fig.add_annotation(
     font=dict(size=12, color="#C53030"),
 )
 
-# Stage labels + their plain-English descriptor.
-# Positioned toward the outer corners so they do not compete with the benchmark box.
 def add_stage_label(x, y, stage_name, descriptor, xanchor):
     fig.add_annotation(
         x=x,
@@ -433,13 +663,11 @@ def add_stage_label(x, y, stage_name, descriptor, xanchor):
         font=dict(size=13, color="#475569"),
     )
 
-
 add_stage_label(0.55, 9.55, "Growing", "Ready for more customers", "left")
 add_stage_label(9.45, 9.55, "Established", "In balance", "right")
 add_stage_label(0.55, 4.55, "Starting", "Building the base", "left")
 add_stage_label(9.45, 4.55, "Fixing", "Growing pains", "right")
 
-# Axis titles.
 fig.add_annotation(
     x=0.5,
     y=-0.14,
@@ -520,8 +748,6 @@ with left:
     )
 
 with right:
-    # Keep HTML flush-left. Markdown treats indented HTML as a code block,
-    # which is why the previous version displayed the <div> tags literally.
     dashboard_html = f"""<div class="summary-card">
 <div class="summary-kicker">Your answers at a glance</div>
 <div class="dash-item">
@@ -542,3 +768,35 @@ with right:
 </div>
 </div>"""
     st.markdown(dashboard_html, unsafe_allow_html=True)
+
+# -----------------------------
+# Save result as polished PNG
+# -----------------------------
+st.markdown('<div class="save-result-wrap"></div>', unsafe_allow_html=True)
+
+try:
+    result_png_bytes = build_result_png(
+        fig=fig,
+        stage=stage,
+        map_stage=map_stage,
+        business_type=business_type,
+        concern=concern,
+        find_answers=find_answers,
+        buy_answers=buy_answers,
+        systems_answer=systems_answer,
+        conclusion_html=conclusion,
+        disclaimer_text=disclaimer,
+    )
+
+    st.download_button(
+        label="⬇ Save my result",
+        data=result_png_bytes,
+        file_name="my-business-stage-map.png",
+        mime="image/png",
+    )
+except Exception as e:
+    st.warning(
+        "The chart displayed correctly, but the PNG export could not be created. "
+        "Please make sure `kaleido` and `pillow` are installed."
+    )
+    st.caption(f"Export error: {e}")
