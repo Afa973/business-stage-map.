@@ -10,15 +10,18 @@ st.set_page_config(page_title="Business Stage Map", page_icon="📍", layout="wi
 st.markdown(
     """
     <style>
-    .block-container {max-width: 1320px; padding-top: 1.4rem; padding-bottom: 1.2rem;}
+    .block-container {max-width: 1320px; padding-top: 2.4rem; padding-bottom: 0.8rem;}
     h1, h2, h3 {letter-spacing: -0.02em;}
-    .hero-title {font-size: 2.05rem; font-weight: 800; line-height:1.08; margin: 0.1rem 0 0.35rem 0;}
+    .hero-title {font-size: 2.05rem; font-weight: 800; line-height:1.15; margin: 0 0 0.35rem 0; padding-top:0.15rem;}
     .meta {font-size: 0.98rem; color:#374151; margin-bottom: 0.25rem;}
     .pill {display:inline-block; padding:0.3rem 0.65rem; border-radius:999px; background:#F3F4F6; margin-right:0.35rem; margin-bottom:0.25rem; font-weight:600; font-size:0.86rem;}
-    .summary-card {padding:1.15rem 1.2rem; border-radius:16px; border:1px solid #E5E7EB; background:#FFFFFF; box-shadow:0 8px 24px rgba(17,24,39,0.05); margin-top:0.45rem;}
-    .summary-kicker {font-size:0.75rem; text-transform:uppercase; letter-spacing:0.08em; color:#6B7280; font-weight:800; margin-bottom:0.55rem;}
-    .summary-text {font-size:1.02rem; line-height:1.55; color:#1F2937; margin:0;}
-    .summary-text + .summary-text {margin-top:0.85rem;}
+    .summary-card {padding:0.9rem 0.95rem; border-radius:14px; border:1px solid #E5E7EB; background:#FFFFFF; box-shadow:0 6px 18px rgba(17,24,39,0.045); margin-top:0.2rem;}
+    .summary-kicker {font-size:0.70rem; text-transform:uppercase; letter-spacing:0.08em; color:#6B7280; font-weight:800; margin-bottom:0.55rem;}
+    .dash-item {padding:0.58rem 0.68rem; border-radius:10px; background:#F8FAFC; border:1px solid #EEF2F7; margin-bottom:0.48rem;}
+    .dash-label {font-size:0.70rem; text-transform:uppercase; letter-spacing:0.055em; color:#6B7280; font-weight:800; margin-bottom:0.18rem;}
+    .dash-value {font-size:0.88rem; line-height:1.34; color:#1F2937; font-weight:650;}
+    .result-line {font-size:0.92rem; line-height:1.43; color:#1F2937; margin:0.68rem 0 0 0;}
+    .summary-disclaimer {font-size:0.72rem; line-height:1.38; color:#6B7280; font-style:italic; margin:0.56rem 0 0 0;}
     div[data-testid="stPlotlyChart"] {margin-top:-0.2rem;}
     </style>
     """,
@@ -53,6 +56,29 @@ def short_answer(value):
 business_type = short_answer(q("type", "Product")).title()
 stage = short_answer(q("stage", "Growing")).title()
 concern = short_answer(q("concern", "Getting customers"))
+
+
+def split_multi(value):
+    """Turn a Tally multi-select value into a clean display list."""
+    if isinstance(value, list):
+        raw_items = value
+    else:
+        text = str(value or "").strip()
+        if not text:
+            return []
+        # Tally/browser encodings can vary; support the common separators.
+        for sep in ("|", ";", "\n"):
+            if sep in text:
+                raw_items = text.split(sep)
+                break
+        else:
+            raw_items = text.split(",")
+    return [str(item).strip() for item in raw_items if str(item).strip()]
+
+
+find_answers = split_multi(q("find", ""))
+buy_answers = split_multi(q("buy", ""))
+systems_answer = str(q("systems", "")).strip()
 
 try:
     x_score = float(q("x", 7.2))
@@ -151,33 +177,36 @@ else:
 
 
 # -----------------------------
-# Concise interpretation
+# Compact dashboard interpretation
 # -----------------------------
+# The numerical scores remain internal. The reader sees the actual answers
+# that produced the map position, which is easier to understand and avoids
+# implying false precision.
+
+def answer_text(items, fallback):
+    if not items:
+        return fallback
+    return " · ".join(items)
+
+
+find_display = answer_text(find_answers, "Add Q5 to the redirect URL")
+buy_display = answer_text(buy_answers, "Add Q6 to the redirect URL")
+systems_display = systems_answer or "Add Q7 to the redirect URL"
+
 if stage == map_stage:
     conclusion = (
-        f"Your answers place you in the <b>{map_stage}</b> region, broadly matching the "
-        f"<b>{stage}</b> stage you selected and suggesting your market reach and operational "
-        "maturity are developing in step."
+        f"You selected <b>{stage}</b>, and the customer routes and repeatable systems shown above "
+        f"also place you in the <b>{map_stage}</b> region on this map."
     )
 else:
-    if map_stage == "Established":
-        signal = "both market reach and operational maturity are relatively strong"
-    elif map_stage == "Growing":
-        signal = "your operational maturity is currently ahead of your market reach"
-    elif map_stage == "Fixing":
-        signal = "your market reach is currently ahead of the systems supporting it"
-    else:
-        signal = "both market reach and operational maturity are still relatively concentrated"
-
     conclusion = (
-        f"Your answers place you in the <b>{map_stage}</b> region rather than the "
-        f"<b>{stage}</b> stage you selected, suggesting that {signal}."
+        f"You selected <b>{stage}</b>, but the customer routes and repeatable systems shown above "
+        f"place you closer to the <b>{map_stage}</b> region on this map."
     )
 
 disclaimer = (
-    "Use this map as a visual thinking aid, not a definitive diagnosis: it simplifies a complex "
-    "business and may not capture important factors such as margins, retention, capacity, market "
-    "conditions or strategy."
+    "This is a simple visual guide to help you think about your business, not a final assessment. "
+    "Other factors not covered here may change the picture."
 )
 
 # -----------------------------
@@ -340,7 +369,7 @@ fig.add_annotation(
 )
 
 fig.update_layout(
-    height=405,
+    height=390,
     margin=dict(l=92, r=24, t=20, b=76),
     paper_bgcolor="white",
     plot_bgcolor="#FCFCFB",
@@ -379,9 +408,25 @@ with right:
     st.markdown(
         f"""
         <div class="summary-card">
-            <div class="summary-kicker">What this suggests</div>
-            <p class="summary-text">{conclusion}</p>
-            <p class="summary-text">{disclaimer}</p>
+            <div class="summary-kicker">Your answers at a glance</div>
+
+            <div class="dash-item">
+                <div class="dash-label">How customers find you</div>
+                <div class="dash-value">{find_display}</div>
+            </div>
+
+            <div class="dash-item">
+                <div class="dash-label">How customers buy</div>
+                <div class="dash-value">{buy_display}</div>
+            </div>
+
+            <div class="dash-item">
+                <div class="dash-label">Repeatable systems</div>
+                <div class="dash-value">{systems_display}</div>
+            </div>
+
+            <p class="result-line">{conclusion}</p>
+            <p class="summary-disclaimer">{disclaimer}</p>
         </div>
         """,
         unsafe_allow_html=True,
