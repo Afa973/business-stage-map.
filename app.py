@@ -16,6 +16,8 @@ st.markdown(
     .hero-title {font-size: 2.05rem; font-weight: 800; line-height:1.15; margin: 0 0 0.35rem 0; padding-top:0.15rem;}
     .meta {font-size: 0.98rem; color:#374151; margin-bottom: 0.25rem;}
     .pill {display:inline-block; padding:0.3rem 0.65rem; border-radius:999px; background:#F3F4F6; margin-right:0.35rem; margin-bottom:0.25rem; font-weight:600; font-size:0.86rem;}
+    .map-logic {font-size:0.76rem; line-height:1.42; color:#6B7280; margin:0.28rem 0 0.15rem 0; max-width:920px;}
+    .map-logic b {color:#4B5563;}
     .summary-card {padding:1.0rem 1.05rem 0.95rem 1.05rem; border-radius:15px; border:1px solid #E5E7EB; background:#FFFFFF; box-shadow:0 8px 24px rgba(17,24,39,0.05); margin-top:-1.75rem;}
     .summary-kicker {font-size:0.70rem; text-transform:uppercase; letter-spacing:0.09em; color:#6B7280; font-weight:800; margin-bottom:0.45rem;}
     .dash-item {padding:0.72rem 0 0.74rem 0; border-bottom:1px solid #E9EDF2;}
@@ -225,15 +227,38 @@ find_display = answer_chips(find_answers, "Answer not received")
 buy_display = answer_chips(buy_answers, "Answer not received")
 systems_display = escape(systems_answer.strip("[]") or "Answer not received")
 
+stage_order = {"Starting": 0, "Growing": 1, "Established": 2}
+
 if stage == map_stage:
     conclusion = (
-        f"You chose <b>{stage}</b>. The ways customers find and buy from you, together with the "
-        f"repeatable systems you already have, also place you in the <b>{map_stage}</b> area of this map."
+        f"You chose <b>{stage}</b>, and your answers point to the same place on the map. "
+        f"Your customer reach and repeatable systems are broadly in line with a <b>{stage}</b> business."
+    )
+elif map_stage == "Fixing":
+    conclusion = (
+        f"You chose <b>{stage}</b>. Customers can find and buy from you in several ways, "
+        f"but your repeatable systems are not keeping pace. That moves you toward <b>Fixing</b>, "
+        f"where growth can start putting strain on the business."
+    )
+elif stage == "Fixing":
+    conclusion = (
+        f"You chose <b>Fixing</b>, but your current answers place you closer to <b>{map_stage}</b>. "
+        f"Your customer reach and repeatable systems look stronger than a typical fixing position on this map."
+    )
+elif stage in stage_order and map_stage in stage_order and stage_order[map_stage] > stage_order[stage]:
+    conclusion = (
+        f"You chose <b>{stage}</b>. Your answers show wider customer reach and more repeatable systems "
+        f"than that stage usually suggests, so you sit closer to <b>{map_stage}</b> on this map."
+    )
+elif stage in stage_order and map_stage in stage_order and stage_order[map_stage] < stage_order[stage]:
+    conclusion = (
+        f"You chose <b>{stage}</b>. Your answers show fewer customer routes and less-developed repeatable systems "
+        f"than that stage usually needs, so you sit closer to <b>{map_stage}</b>. That gap is worth looking at."
     )
 else:
     conclusion = (
-        f"You chose <b>{stage}</b>. The ways customers find and buy from you, together with the "
-        f"repeatable systems you already have, place you closer to <b>{map_stage}</b> on this map."
+        f"You chose <b>{stage}</b>, while your answers place you closer to <b>{map_stage}</b> on this map. "
+        f"The difference is a useful prompt to look more closely at your customer reach and systems."
     )
 
 disclaimer = (
@@ -253,6 +278,12 @@ st.markdown(
 st.markdown(
     f'<span class="pill">{business_type}</span>'
     f'<span class="pill">Concern: {concern}</span>',
+    unsafe_allow_html=True,
+)
+st.markdown(
+    '<div class="map-logic"><b>How this map works:</b> Your position is based on how customers find and buy from you '
+    '(questions 5–6) and how repeatable your systems are (question 7). '
+    'The benchmark is based on the stage you selected (question 3).</div>',
     unsafe_allow_html=True,
 )
 
@@ -302,26 +333,66 @@ fig.add_shape(
 )
 
 # Expected benchmark zone based on business type + self-identified stage.
+# The border uses the selected stage's book color so the benchmark is easier to spot.
+benchmark_colors = {
+    "Starting": {"line": "#78A878", "fill": "rgba(120,168,120,0.16)"},
+    "Growing": {"line": "#B99A36", "fill": "rgba(185,154,54,0.16)"},
+    "Established": {"line": "#8A72B4", "fill": "rgba(138,114,180,0.16)"},
+    "Fixing": {"line": "#C57D48", "fill": "rgba(197,125,72,0.16)"},
+}
+benchmark_color = benchmark_colors.get(stage, benchmark_colors["Growing"])
+benchmark_label = f"Stability range: {stage}" if stage == "Fixing" else f"Expected range: {stage}"
+
+benchmark_cx = (x_range_plot[0] + x_range_plot[1]) / 2
+benchmark_cy = (y_range_plot[0] + y_range_plot[1]) / 2
+
 fig.add_shape(
     type="rect",
     x0=x_range_plot[0], x1=x_range_plot[1],
     y0=y_range_plot[0], y1=y_range_plot[1],
-    fillcolor="rgba(107,114,128,0.34)",
-    line=dict(color="rgba(75,85,99,0.72)", width=1.0, dash="dot"),
+    fillcolor=benchmark_color["fill"],
+    line=dict(color=benchmark_color["line"], width=2.0, dash="dot"),
 )
 fig.add_annotation(
-    x=(x_range_plot[0] + x_range_plot[1]) / 2,
-    y=(y_range_plot[0] + y_range_plot[1]) / 2,
+    x=benchmark_cx,
+    y=benchmark_cy,
     xanchor="center",
     yanchor="middle",
     align="center",
-    text="<b>You should be here</b>",
+    text=f"<b>{benchmark_label}</b>",
     showarrow=False,
     font=dict(size=10.5, color="#1F2937"),
-    bgcolor="rgba(229,231,235,0.76)",
-    bordercolor="rgba(75,85,99,0.0)",
-    borderpad=1.5,
+    bgcolor="rgba(255,255,255,0.84)",
+    bordercolor=benchmark_color["line"],
+    borderwidth=0.8,
+    borderpad=2.0,
 )
+
+# Show the distance between the reader's position and the benchmark when the
+# position falls outside the expected range.
+inside_benchmark = (
+    x_range_plot[0] <= x_plot <= x_range_plot[1]
+    and y_range_plot[0] <= y_plot <= y_range_plot[1]
+)
+if not inside_benchmark:
+    fig.add_shape(
+        type="line",
+        x0=benchmark_cx, y0=benchmark_cy,
+        x1=x_plot, y1=y_plot,
+        line=dict(color=benchmark_color["line"], width=1.4, dash="dot"),
+        layer="below",
+    )
+    gap_x = benchmark_cx + (x_plot - benchmark_cx) * 0.52
+    gap_y = benchmark_cy + (y_plot - benchmark_cy) * 0.52
+    fig.add_annotation(
+        x=gap_x,
+        y=gap_y,
+        text="<b>Gap</b>",
+        showarrow=False,
+        font=dict(size=9.5, color=benchmark_color["line"]),
+        bgcolor="rgba(255,255,255,0.82)",
+        borderpad=1.5,
+    )
 
 # Reader position. The tooltip shows the true score; the plotted location uses
 # the inset visual coordinates so the pin never touches the outer boundary.
