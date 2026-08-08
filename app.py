@@ -11,9 +11,9 @@ st.set_page_config(page_title="Business Stage Map", page_icon="📍", layout="wi
 st.markdown(
     """
     <style>
-    .block-container {max-width: 1320px; padding-top: 2.4rem; padding-bottom: 0.8rem;}
+    .block-container {max-width: 1320px; padding-top: 1.05rem; padding-bottom: 0.8rem;}
     h1, h2, h3 {letter-spacing: -0.02em;}
-    .hero-title {font-size: 2.05rem; font-weight: 800; line-height:1.15; margin: 0 0 0.35rem 0; padding-top:0.15rem;}
+    .hero-title {font-size: 2.05rem; font-weight: 800; line-height:1.15; margin: 0 0 0.35rem 0; padding-top:0;}
     .meta {font-size: 0.98rem; color:#374151; margin-bottom: 0.25rem;}
     .meta-line {display:block; margin-bottom: 0.15rem;}
     .pill {display:inline-block; padding:0.3rem 0.65rem; border-radius:999px; background:#F3F4F6; margin-right:0.35rem; margin-bottom:0.25rem; font-weight:600; font-size:0.86rem;}
