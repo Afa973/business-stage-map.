@@ -265,10 +265,10 @@ fig = go.Figure()
 # and the benchmark zone remain the strongest visual signals.
 stage_regions = [
     # x0, x1, y0, y1, fill
-    (0, cut, 0, cut, "rgba(236, 214, 203, 0.42)"),   # Starting
-    (0, cut, cut, 10, "rgba(201, 228, 199, 0.46)"),  # Growing
-    (cut, 10, cut, 10, "rgba(224, 214, 242, 0.66)"), # Established
-    (cut, 10, 0, cut, "rgba(239, 212, 205, 0.42)"),  # Fixing
+    (0, cut, 0, cut, "rgba(214, 235, 211, 0.72)"),   # Starting — green
+    (0, cut, cut, 10, "rgba(249, 236, 170, 0.72)"),  # Growing — yellow
+    (cut, 10, cut, 10, "rgba(226, 216, 244, 0.72)"), # Established — purple
+    (cut, 10, 0, cut, "rgba(246, 221, 197, 0.72)"),  # Fixing — orange
 ]
 
 for x0, x1, y0, y1, fill in stage_regions:
