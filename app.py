@@ -2,7 +2,7 @@ import streamlit as st
 import plotly.graph_objects as go
 from urllib.parse import quote
 
-st.set_page_config(page_title="Business Stage Map", page_icon="📍", layout="centered")
+st.set_page_config(page_title="Business Stage Map", page_icon="📍", layout="wide")
 
 # -----------------------------
 # Styling
@@ -10,15 +10,16 @@ st.set_page_config(page_title="Business Stage Map", page_icon="📍", layout="ce
 st.markdown(
     """
     <style>
-    .block-container {max-width: 940px; padding-top: 2.4rem; padding-bottom: 3rem;}
+    .block-container {max-width: 1320px; padding-top: 1.4rem; padding-bottom: 1.2rem;}
     h1, h2, h3 {letter-spacing: -0.02em;}
-    .hero-title {font-size: 2.15rem; font-weight: 800; line-height:1.08; margin: 0.2rem 0 0.5rem 0;}
-    .meta {font-size: 1.02rem; color:#374151; margin-bottom: 0.25rem;}
-    .pill {display:inline-block; padding:0.35rem 0.7rem; border-radius:999px; background:#F3F4F6; margin-right:0.4rem; margin-bottom:0.4rem; font-weight:600; font-size:0.9rem;}
-    .result-card {padding:0.95rem 1.05rem; border-radius:16px; border:1px solid #E5E7EB; background:#FFFFFF; margin-top:0.8rem; box-shadow:0 6px 20px rgba(17,24,39,0.04);}
-    .result-label {font-size:0.76rem; text-transform:uppercase; letter-spacing:0.08em; color:#6B7280; font-weight:700;}
-    .result-value {font-size:1.18rem; font-weight:800; color:#111827; margin-top:0.15rem;}
-    .next-move {padding:1rem 1.1rem; border-left:3px solid #111827; background:#F9FAFB; border-radius:10px; margin-top:1rem;}
+    .hero-title {font-size: 2.05rem; font-weight: 800; line-height:1.08; margin: 0.1rem 0 0.35rem 0;}
+    .meta {font-size: 0.98rem; color:#374151; margin-bottom: 0.25rem;}
+    .pill {display:inline-block; padding:0.3rem 0.65rem; border-radius:999px; background:#F3F4F6; margin-right:0.35rem; margin-bottom:0.25rem; font-weight:600; font-size:0.86rem;}
+    .summary-card {padding:1.15rem 1.2rem; border-radius:16px; border:1px solid #E5E7EB; background:#FFFFFF; box-shadow:0 8px 24px rgba(17,24,39,0.05); margin-top:0.45rem;}
+    .summary-kicker {font-size:0.75rem; text-transform:uppercase; letter-spacing:0.08em; color:#6B7280; font-weight:800; margin-bottom:0.55rem;}
+    .summary-text {font-size:1.02rem; line-height:1.55; color:#1F2937; margin:0;}
+    .summary-text + .summary-text {margin-top:0.85rem;}
+    div[data-testid="stPlotlyChart"] {margin-top:-0.2rem;}
     </style>
     """,
     unsafe_allow_html=True,
@@ -149,119 +150,35 @@ else:
     map_descriptor = "Growing pains"
 
 
-def distance_from_range(v, rng):
-    lo, hi = rng
-    if lo <= v <= hi:
-        return 0
-    return lo - v if v < lo else v - hi
-
-
-dx = distance_from_range(x_score, x_range)
-dy = distance_from_range(y_score, y_range)
-max_d = max(dx, dy)
-
-if stage == "Fixing":
-    stage_fit = "Fixing mode"
-elif dx == 0 and dy == 0:
-    stage_fit = "On track"
-elif max_d <= 1.0:
-    stage_fit = "A little uneven"
-elif max_d <= 2.0:
-    stage_fit = "Out of balance"
-else:
-    stage_fit = "Needs attention"
-
-# Core interpretation follows the observed map position.
-if map_stage == "Fixing":
-    interpretation = (
-        f"Your market reach is ahead of your operating maturity. For a {stage.lower()} "
-        f"{business_type.lower()} business, this usually means demand is developing faster "
-        "than the systems supporting it."
-    )
-    next_move = (
-        "Do not add another marketing channel yet. Strengthen delivery, capacity and "
-        "repeatability first."
-    )
-elif map_stage == "Growing":
-    interpretation = (
-        "Your operating maturity is stronger than your market reach. You appear capable of "
-        "handling more demand than you are currently generating."
-    )
-    next_move = (
-        "Use the capacity you already have. Strengthen one additional acquisition channel "
-        "before adding more operational complexity."
-    )
-elif map_stage == "Starting":
-    interpretation = (
-        "Your reach and operating maturity are both still concentrated. That can be appropriate "
-        "early on, but it becomes a constraint if the business is already beyond the proving stage."
-    )
-    next_move = (
-        "Focus on proving one dependable route to customers and one repeatable delivery process "
-        "before broadening the model."
-    )
-else:
-    interpretation = (
-        "Your market reach and operating maturity are both relatively strong. The business has "
-        "a healthier balance between generating demand and delivering it consistently."
-    )
-    next_move = (
-        "Protect what is working. Improve resilience, margins and channel quality before adding "
-        "unnecessary complexity."
-    )
-
-# Explicitly compare the user's self-identified stage with the observed map position.
+# -----------------------------
+# Concise interpretation
+# -----------------------------
 if stage == map_stage:
-    stage_comparison = (
-        f"Your map position matches the stage you selected: {stage}."
+    conclusion = (
+        f"Your answers place you in the <b>{map_stage}</b> region, broadly matching the "
+        f"<b>{stage}</b> stage you selected and suggesting your market reach and operational "
+        "maturity are developing in step."
     )
 else:
-    stage_comparison = (
-        f"You identified the business as {stage}, while the current reach/maturity pattern places "
-        f"it in the {map_stage} region. That gap is a useful signal to investigate rather than a verdict."
-    )
-
-if stage == "Fixing":
-    interpretation += (
-        " You also identified the business as being in Fixing mode, so stabilization should take "
-        "priority over expansion."
-    )
-    next_move = (
-        "Return to the channels, offers and processes that produce cash and reliability fastest. "
-        "Stabilize first; expand second."
-    )
-
-concern_lower = concern.lower()
-if "customer" in concern_lower or "lead" in concern_lower:
-    if x_score >= 5.5 and y_score < 5.5:
-        perceived_note = (
-            "You said getting customers is the biggest concern, but the map suggests operational "
-            "capacity may be the more immediate constraint."
-        )
+    if map_stage == "Established":
+        signal = "both market reach and operational maturity are relatively strong"
+    elif map_stage == "Growing":
+        signal = "your operational maturity is currently ahead of your market reach"
+    elif map_stage == "Fixing":
+        signal = "your market reach is currently ahead of the systems supporting it"
     else:
-        perceived_note = (
-            "Your stated concern about customer acquisition is broadly consistent with the "
-            "market-reach signal in the map."
-        )
-elif "smarter" in concern_lower or "efficien" in concern_lower:
-    perceived_note = (
-        "Your concern about working smarter is most closely related to the operational-maturity "
-        "side of the map."
+        signal = "both market reach and operational maturity are still relatively concentrated"
+
+    conclusion = (
+        f"Your answers place you in the <b>{map_stage}</b> region rather than the "
+        f"<b>{stage}</b> stage you selected, suggesting that {signal}."
     )
-elif "money" in concern_lower or "cash" in concern_lower or "profit" in concern_lower:
-    perceived_note = (
-        "Your money concern should be read alongside both reach and maturity: weak demand and "
-        "inefficient delivery can each create cash pressure for different reasons."
-    )
-elif "keeping" in concern_lower or "loyal" in concern_lower:
-    perceived_note = (
-        "Your concern about retention is not fully captured by the X/Y map, so treat it as an "
-        "additional diagnostic flag rather than part of the plotted score."
-    )
-else:
-    perceived_note = (
-        "Your stated concern adds context to the map, but it is not included directly in the X/Y score."
-    )
+
+disclaimer = (
+    "Use this map as a visual thinking aid, not a definitive diagnosis: it simplifies a complex "
+    "business and may not capture important factors such as margins, retention, capacity, market "
+    "conditions or strategy."
+)
 
 # -----------------------------
 # Header
@@ -423,8 +340,8 @@ fig.add_annotation(
 )
 
 fig.update_layout(
-    height=420,
-    margin=dict(l=102, r=40, t=26, b=84),
+    height=405,
+    margin=dict(l=92, r=24, t=20, b=76),
     paper_bgcolor="white",
     plot_bgcolor="#FCFCFB",
     xaxis=dict(
@@ -446,75 +363,26 @@ fig.update_layout(
     hoverlabel=dict(bgcolor="white", font_size=12),
 )
 
-st.plotly_chart(
-    fig,
-    use_container_width=True,
-    config={"displayModeBar": False, "responsive": True},
-)
+# -----------------------------
+# Map + interpretation in one view
+# -----------------------------
+left, right = st.columns([2.35, 1.0], gap="large")
 
-# -----------------------------
-# Results
-# -----------------------------
-c1, c2 = st.columns(2)
-with c1:
+with left:
+    st.plotly_chart(
+        fig,
+        use_container_width=True,
+        config={"displayModeBar": False, "responsive": True},
+    )
+
+with right:
     st.markdown(
-        f'<div class="result-card"><div class="result-label">Market Reach</div>'
-        f'<div class="result-value">{x_label}</div></div>',
+        f"""
+        <div class="summary-card">
+            <div class="summary-kicker">What this suggests</div>
+            <p class="summary-text">{conclusion}</p>
+            <p class="summary-text">{disclaimer}</p>
+        </div>
+        """,
         unsafe_allow_html=True,
     )
-with c2:
-    st.markdown(
-        f'<div class="result-card"><div class="result-label">Operational Maturity</div>'
-        f'<div class="result-value">{y_label}</div></div>',
-        unsafe_allow_html=True,
-    )
-
-st.markdown(f"### Your stage fit: **{stage_fit}**")
-st.write(stage_comparison)
-st.write(interpretation)
-st.caption(perceived_note)
-st.markdown(
-    f'<div class="next-move"><b>Next move:</b> {next_move}</div>',
-    unsafe_allow_html=True,
-)
-
-with st.expander("What this map is measuring"):
-    st.write(
-        "Market Reach reflects the breadth and diversity of how customers find and buy from you. "
-        "Operational Maturity reflects the repeatability of the systems that support delivery. "
-        "The four regions translate those two signals into a broad business-stage pattern. "
-        "The grey benchmark zone compares your current position with the expected range for your "
-        "business type and the stage you selected."
-    )
-
-st.divider()
-st.caption("Prototype testing controls")
-with st.expander("Try another result"):
-    business_types = ["Product", "Service", "Content", "Local", "Hybrid"]
-    stages = ["Starting", "Growing", "Established", "Fixing"]
-    concerns = ["Money", "Getting customers", "Keeping customers", "Working smarter"]
-
-    demo_type = st.selectbox(
-        "Business type",
-        business_types,
-        index=business_types.index(business_type) if business_type in business_types else 0,
-    )
-    demo_stage = st.selectbox(
-        "Stage",
-        stages,
-        index=stages.index(stage) if stage in stages else 1,
-    )
-    demo_concern = st.selectbox(
-        "Concern",
-        concerns,
-        index=concerns.index(concern) if concern in concerns else 0,
-    )
-    demo_x = st.slider("Market Reach", 0.0, 10.0, float(x_score), 0.1)
-    demo_y = st.slider("Operational Maturity", 0.0, 10.0, float(y_score), 0.1)
-
-    url = (
-        f"?type={quote(demo_type)}&stage={quote(demo_stage)}&"
-        f"concern={quote(demo_concern)}&x={demo_x}&y={demo_y}"
-    )
-    st.code(url)
-    st.markdown(f"[Open this result]({url})")
