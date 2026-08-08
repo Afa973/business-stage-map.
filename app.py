@@ -411,7 +411,7 @@ fig.update_layout(
     paper_bgcolor="white",
     plot_bgcolor="#FCFCFB",
     xaxis=dict(
-        range=[0, 10.25],
+        range=[0, 10.5],
         showgrid=False,
         zeroline=False,
         showticklabels=False,
@@ -419,7 +419,7 @@ fig.update_layout(
         fixedrange=True,
     ),
     yaxis=dict(
-        range=[0, 10.25],
+        range=[0, 10.5],
         showgrid=False,
         zeroline=False,
         showticklabels=False,
