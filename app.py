@@ -1,6 +1,7 @@
 import streamlit as st
 import plotly.graph_objects as go
 from urllib.parse import quote
+from html import escape
 
 st.set_page_config(page_title="Business Stage Map", page_icon="📍", layout="wide")
 
@@ -66,14 +67,18 @@ def split_multi(value):
         text = str(value or "").strip()
         if not text:
             return []
-        # Tally/browser encodings can vary; support the common separators.
+        # Be forgiving if literal square brackets were accidentally added
+        # around a Tally @mention in the redirect URL.
+        if text.startswith("[") and text.endswith("]"):
+            text = text[1:-1].strip()
+        # Tally/browser encodings can vary; support common separators.
         for sep in ("|", ";", "\n"):
             if sep in text:
                 raw_items = text.split(sep)
                 break
         else:
             raw_items = text.split(",")
-    return [str(item).strip() for item in raw_items if str(item).strip()]
+    return [str(item).strip().strip("[]") for item in raw_items if str(item).strip()]
 
 
 find_answers = split_multi(q("find", ""))
@@ -189,9 +194,9 @@ def answer_text(items, fallback):
     return " · ".join(items)
 
 
-find_display = answer_text(find_answers, "Add Q5 to the redirect URL")
-buy_display = answer_text(buy_answers, "Add Q6 to the redirect URL")
-systems_display = systems_answer or "Add Q7 to the redirect URL"
+find_display = escape(answer_text(find_answers, "Answer not received"))
+buy_display = escape(answer_text(buy_answers, "Answer not received"))
+systems_display = escape(systems_answer.strip("[]") or "Answer not received")
 
 if stage == map_stage:
     conclusion = (
@@ -405,29 +410,23 @@ with left:
     )
 
 with right:
-    st.markdown(
-        f"""
-        <div class="summary-card">
-            <div class="summary-kicker">Your answers at a glance</div>
-
-            <div class="dash-item">
-                <div class="dash-label">How customers find you</div>
-                <div class="dash-value">{find_display}</div>
-            </div>
-
-            <div class="dash-item">
-                <div class="dash-label">How customers buy</div>
-                <div class="dash-value">{buy_display}</div>
-            </div>
-
-            <div class="dash-item">
-                <div class="dash-label">Repeatable systems</div>
-                <div class="dash-value">{systems_display}</div>
-            </div>
-
-            <p class="result-line">{conclusion}</p>
-            <p class="summary-disclaimer">{disclaimer}</p>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    # Keep HTML flush-left. Markdown treats indented HTML as a code block,
+    # which is why the previous version displayed the <div> tags literally.
+    dashboard_html = f"""<div class="summary-card">
+<div class="summary-kicker">Your answers at a glance</div>
+<div class="dash-item">
+<div class="dash-label">How customers find you</div>
+<div class="dash-value">{find_display}</div>
+</div>
+<div class="dash-item">
+<div class="dash-label">How customers buy</div>
+<div class="dash-value">{buy_display}</div>
+</div>
+<div class="dash-item">
+<div class="dash-label">Repeatable systems</div>
+<div class="dash-value">{systems_display}</div>
+</div>
+<p class="result-line">{conclusion}</p>
+<p class="summary-disclaimer">{disclaimer}</p>
+</div>"""
+    st.markdown(dashboard_html, unsafe_allow_html=True)
